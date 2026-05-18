@@ -1,0 +1,289 @@
+@model PennyWise.ViewModels.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Finansal Kontrol Paneli";
+}
+
+<div class="container">
+    <!-- Üst Başlık ve Rapor İndirme -->
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+            <h1 class="h2 mb-0">Finansal Özetiniz</h1>
+            <p class="text-muted mb-0">Aylık finansal durumunuzu ve bütçe hedeflerinizi yönetin.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="PrintReport" target="_blank" class="btn btn-primary fw-semibold">
+                <i class="fa-solid fa-file-pdf me-2"></i>PDF Raporu İndir
+            </a>
+            <a asp-action="ExportTransactionsCsv" class="btn btn-outline-primary fw-semibold">
+                <i class="fa-solid fa-file-csv me-2"></i>Excel/CSV Aktar
+            </a>
+        </div>
+    </div>
+
+    <!-- Özet Kartları (Glassmorphism & 3D İkonlar) -->
+    <div class="row g-3 mb-4">
+        <!-- Toplam Gelir -->
+        <div class="col-md-4">
+            <div class="card p-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small fw-semibold uppercase tracking-wider mb-1">Toplam Gelir</div>
+                        <div class="h2 mb-0 text-success fw-bold">@Model.TotalIncome.ToString("C2")</div>
+                    </div>
+                    <div class="icon-badge-3d icon-badge-income">
+                        <i class="fa-solid fa-arrow-down-long"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Toplam Gider -->
+        <div class="col-md-4">
+            <div class="card p-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small fw-semibold uppercase tracking-wider mb-1">Toplam Gider</div>
+                        <div class="h2 mb-0 text-danger fw-bold">@Model.TotalExpense.ToString("C2")</div>
+                    </div>
+                    <div class="icon-badge-3d icon-badge-expense">
+                        <i class="fa-solid fa-arrow-up-long"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Net Bakiye -->
+        <div class="col-md-4">
+            <div class="card p-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small fw-semibold uppercase tracking-wider mb-1">Net Bakiye</div>
+                        <div class="h2 mb-0 fw-bold @(Model.NetBalance >= 0 ? "text-primary" : "text-warning")">
+                            @Model.NetBalance.ToString("C2")
+                        </div>
+                    </div>
+                    <div class="icon-badge-3d @(Model.NetBalance >= 0 ? "icon-badge-balance-positive" : "icon-badge-balance-negative")">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orta Bölüm: Grafikler ve Birikim Hedefleri -->
+    <div class="row g-4 mb-4">
+        <!-- Chart.js Grafiği -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span class="fw-semibold d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-chart-pie gradient-icon-pie"></i> Kategori Dağılımı
+                    </span>
+                </div>
+                <div class="card-body d-flex flex-column align-items-center justify-content-center" style="min-height: 300px;">
+                    @if (Model.CategoryDistribution.Any())
+                    {
+                        <div style="position: relative; height:250px; width:250px">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-4 d-flex flex-column align-items-center justify-content-center">
+                            <svg class="mb-3" width="100" height="100" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="60" cy="60" r="50" fill="#F8FAFC"/>
+                                <rect x="40" y="45" width="40" height="40" rx="8" fill="#E2E8F0"/>
+                                <rect x="48" y="55" width="24" height="4" rx="2" fill="#94A3B8"/>
+                                <rect x="48" y="65" width="16" height="4" rx="2" fill="#94A3B8"/>
+                                <circle cx="80" cy="80" r="15" fill="#3B82F6" fill-opacity="0.1"/>
+                                <path d="M77 75L83 81" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/>
+                                <circle cx="75" cy="75" r="3" stroke="#3B82F6" stroke-width="2"/>
+                            </svg>
+                            <p class="small mb-1 fw-semibold text-dark">Harcama Bulunamadı</p>
+                            <p class="small mb-0 text-muted" style="font-size: 0.8rem;">Henüz bu ay yapılmış bir harcama kaydı bulunmuyor.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Birikim Hedefleri -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span class="fw-semibold d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-bullseye gradient-icon-bullseye"></i> Birikim Hedefleriniz
+                    </span>
+                    <a asp-controller="SavingsGoal" asp-action="Index" class="btn btn-sm btn-glass-outline border-0">Yönet</a>
+                </div>
+                <div class="card-body">
+                    @if (Model.SavingsGoals.Any())
+                    {
+                        <div class="d-flex flex-column gap-3">
+                            @foreach (var goal in Model.SavingsGoals.Take(3))
+                            {
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="fw-semibold text-muted small">@goal.Title</span>
+                                        <span class="small fw-bold">@goal.ProgressPercentage% (@goal.CurrentAmount.ToString("C0") / @goal.TargetAmount.ToString("C0"))</span>
+                                    </div>
+                                    <div class="progress" style="height: 8px; background-color: var(--border-color);">
+                                        <div class="progress-bar bg-primary" role="progressbar" style="width: @(goal.ProgressPercentage)%; border-radius: 4px;" aria-valuenow="@goal.ProgressPercentage" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-4 d-flex flex-column align-items-center justify-content-center">
+                            <svg class="mb-3" width="100" height="100" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="60" cy="60" r="50" fill="#F8FAFC"/>
+                                <circle cx="60" cy="60" r="30" stroke="#E2E8F0" stroke-width="6"/>
+                                <circle cx="60" cy="60" r="20" stroke="#94A3B8" stroke-width="6"/>
+                                <circle cx="60" cy="60" r="10" stroke="#3B82F6" stroke-width="6"/>
+                                <line x1="60" y1="20" x2="60" y2="40" stroke="#CBD5E1" stroke-width="4" stroke-linecap="round"/>
+                                <line x1="60" y1="80" x2="60" y2="100" stroke="#CBD5E1" stroke-width="4" stroke-linecap="round"/>
+                                <line x1="20" y1="60" x2="40" y2="60" stroke="#CBD5E1" stroke-width="4" stroke-linecap="round"/>
+                                <line x1="80" y1="60" x2="100" y2="60" stroke="#CBD5E1" stroke-width="4" stroke-linecap="round"/>
+                            </svg>
+                            <p class="small mb-1 fw-semibold text-dark">Aktif Hedef Yok</p>
+                            <p class="small mb-3 text-muted" style="font-size: 0.8rem;">Henüz aktif bir birikim hedefi belirlemediniz.</p>
+                            <a asp-controller="SavingsGoal" asp-action="Create" class="btn btn-sm btn-primary px-3 rounded-pill shadow-sm">Hedef Belirle</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alt Bölüm: Yaklaşan Faturalar ve Hızlı Erişim -->
+    <div class="row g-4">
+        <!-- Yaklaşan Faturalar -->
+        <div class="col-lg-8">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span class="fw-semibold d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-receipt gradient-icon-receipt"></i> Yaklaşan Faturalar
+                    </span>
+                    <a asp-controller="Bill" asp-action="Index" class="btn btn-sm btn-glass-outline border-0">Tümünü Gör</a>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.UpcomingBills.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Fatura Adı</th>
+                                        <th>Kategori</th>
+                                        <th>Son Gün</th>
+                                        <th>Tutar</th>
+                                        <th class="text-end">İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var bill in Model.UpcomingBills)
+                                    {
+                                        <tr>
+                                            <td class="fw-semibold">@bill.Title</td>
+                                            <td><span class="badge bg-light text-dark border">@bill.Category?.Name</span></td>
+                                            <td class="text-muted small">@bill.DueDate.ToString("dd.MM.yyyy")</td>
+                                            <td class="fw-bold text-danger">@bill.Amount.ToString("C2")</td>
+                                            <td class="text-end">
+                                                <form asp-controller="Bill" asp-action="Pay" asp-route-id="@bill.Id" method="post" class="d-inline">
+                                                    <button type="submit" class="btn btn-sm btn-outline-primary py-1 px-3">
+                                                        <i class="fa-solid fa-check-double me-1"></i> Öde
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-4 d-flex flex-column align-items-center justify-content-center h-100">
+                            <svg class="mb-3" width="100" height="100" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="60" cy="60" r="50" fill="#F8FAFC"/>
+                                <rect x="42" y="38" width="36" height="48" rx="8" fill="#E2E8F0"/>
+                                <circle cx="60" cy="54" r="8" fill="#10B981" fill-opacity="0.2"/>
+                                <path d="M57 54L59 56L63 52" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <rect x="50" y="68" width="20" height="4" rx="2" fill="#94A3B8"/>
+                                <rect x="54" y="76" width="12" height="4" rx="2" fill="#94A3B8"/>
+                            </svg>
+                            <p class="small mb-1 fw-semibold text-dark">Faturanız Yok</p>
+                            <p class="small mb-3 text-muted" style="font-size: 0.8rem;">Ödenmesi gereken yaklaşan bir faturanız bulunmuyor.</p>
+                            <a asp-controller="Bill" asp-action="Create" class="btn btn-sm btn-glass-primary px-3 rounded-pill shadow-sm">Fatura Ekle</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+ 
+        <!-- Hızlı İşlemler Kılavuzu -->
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <span class="fw-semibold d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-bolt gradient-icon-flash"></i> Hızlı İşlemler
+                    </span>
+                </div>
+                <div class="card-body d-flex flex-column gap-2 justify-content-center">
+                    <a asp-controller="Transaction" asp-action="Create" class="btn btn-glass-primary w-100 text-start py-2">
+                        <i class="fa-solid fa-plus-circle me-2"></i> Yeni Gelir / Gider Ekle
+                    </a>
+                    <a asp-controller="Bill" asp-action="Create" class="btn btn-glass-outline w-100 text-start py-2">
+                        <i class="fa-solid fa-receipt me-2"></i> Gelecek Fatura Tanımla
+                    </a>
+                    <a asp-controller="SavingsGoal" asp-action="Create" class="btn btn-glass-outline w-100 text-start py-2">
+                        <i class="fa-solid fa-bullseye me-2"></i> Birikim Hedefi Koy
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js Kütüphanesi -->
+@if (Model.CategoryDistribution.Any())
+{
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var ctx = document.getElementById('categoryChart').getContext('2d');
+            var myChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: @Html.Raw(Json.Serialize(Model.CategoryDistribution.Select(c => c.CategoryName))),
+                    datasets: [{
+                        data: @Html.Raw(Json.Serialize(Model.CategoryDistribution.Select(c => c.TotalAmount))),
+                        backgroundColor: [
+                            '#3B82F6', '#10B981', '#EF4444', '#F59E0B', '#06B6D4', '#8B5CF6'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    family: 'Inter',
+                                    size: 11
+                                },
+                                boxWidth: 12
+                            }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+        });
+    </script>
+}

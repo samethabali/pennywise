@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - PennyWise</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/PennyWise.styles.css" asp-append-version="true" />
+    <style>
+        html, body {
+            height: auto !important;
+            min-height: 100vh !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout-wrapper">
+        <div class="glass-bg-spheres">
+            <div class="sphere sphere-1"></div>
+            <div class="sphere sphere-2"></div>
+            <div class="sphere sphere-3"></div>
+        </div>
+        <header>
+            <nav class="navbar navbar-expand-sm navbar-toggleable-sm mb-4 @(ViewData["HideNavbarLinks"] != null ? "navbar-login-page" : "")">
+                <div class="container-fluid">
+                    <a class="navbar-brand @(ViewData["HideNavbarLinks"] != null ? "navbar-brand-glow" : "")" asp-controller="Dashboard" asp-action="Index">
+                        <i class="fa-solid fa-building-columns text-primary me-2"></i>PennyWise
+                    </a>
+                    
+                    @if (ViewData["HideNavbarLinks"] == null)
+                    {
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                                aria-expanded="false" aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                            <ul class="navbar-nav flex-grow-1">
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Dashboard" asp-action="Index"><i class="fa-solid fa-house me-1"></i> Dashboard</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Transaction" asp-action="Create"><i class="fa-solid fa-plus-circle me-1"></i> Yeni İşlem</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Transaction" asp-action="Index"><i class="fa-solid fa-list me-1"></i> Tüm İşlemler</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Bill" asp-action="Index"><i class="fa-solid fa-receipt me-1"></i> Faturalar</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="SavingsGoal" asp-action="Index"><i class="fa-solid fa-bullseye me-1"></i> Hedefler</a>
+                                </li>
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link text-warning" asp-controller="Category" asp-action="Index"><i class="fa-solid fa-lock me-1"></i> Kategoriler (Admin)</a>
+                                    </li>
+                                }
+                            </ul>
+                            @if (User.Identity?.IsAuthenticated == true)
+                            {
+                                <div class="me-4 d-flex align-items-center balance-info">
+                                    <i class="fa-solid fa-wallet me-2"></i>
+                                    @await Component.InvokeAsync("Balance")
+                                </div>
+                            }
+                            <partial name="_LoginPartial" />
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Sağda şeffaf profil simgesi -->
+                        <div class="d-flex align-items-center">
+                            <a class="nav-link navbar-profile-transparent p-2" asp-area="Identity" asp-page="/Account/Login">
+                                <i class="fa-regular fa-circle-user fa-lg"></i>
+                            </a>
+                        </div>
+                    }
+                </div>
+            </nav>
+        </header>
+        
+        <main role="main" class="main-content container pb-3">
+            @RenderBody()
+        </main>
+
+        <footer class="footer">
+            <div class="container text-center text-muted">
+                &copy; 2026 - <span style="font-weight: 600; color: var(--primary-blue);">PennyWise</span> <span class="mx-2">|</span> Finansal Özgürlük Kontrolünüzde
+            </div>
+        </footer>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,109 @@
+@model IEnumerable<PennyWise.Models.Transaction>
+
+@{
+    ViewData["Title"] = "Tüm İşlemleriniz";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+            <h1 class="h2 mb-0">Tüm İşlemleriniz</h1>
+            <p class="text-muted mb-0">Bugüne kadar gerçekleştirdiğiniz tüm gelir ve gider işlemlerinin dökümü.</p>
+        </div>
+        <div>
+            <a asp-action="Create" class="btn btn-primary fw-semibold">
+                <i class="fa-solid fa-plus me-2"></i>Yeni İşlem Ekle
+            </a>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="card text-center py-5">
+            <div class="card-body">
+                <i class="fa-solid fa-folder-open fa-4x text-muted mb-3"></i>
+                <h3>Henüz Hiç İşlem Kaydı Yok</h3>
+                <p class="text-muted max-width-md mx-auto mb-4">
+                    Gelir veya gider ekleyerek bütçenizi yönetmeye başlayın.
+                </p>
+                <a asp-action="Create" class="btn btn-primary fw-semibold">
+                    <i class="fa-solid fa-plus me-2"></i>İlk İşlemini Ekle
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Özet Kartları -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="card p-3 d-flex flex-row align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small fw-semibold">Toplam Gelir Akışı</div>
+                        <div class="h4 mb-0 text-success fw-bold">
+                            @Model.Where(t => t.Category.Type == PennyWise.Models.TransactionType.Income).Sum(t => t.Amount).ToString("C2")
+                        </div>
+                    </div>
+                    <div class="bg-light p-3 rounded-circle">
+                        <i class="fa-solid fa-circle-arrow-up text-success fa-lg"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card p-3 d-flex flex-row align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small fw-semibold">Toplam Gider Çıkışı</div>
+                        <div class="h4 mb-0 text-danger fw-bold">
+                            @Model.Where(t => t.Category.Type == PennyWise.Models.TransactionType.Expense).Sum(t => t.Amount).ToString("C2")
+                        </div>
+                    </div>
+                    <div class="bg-light p-3 rounded-circle">
+                        <i class="fa-solid fa-circle-arrow-down text-danger fa-lg"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- İşlemler Tablosu -->
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Tarih</th>
+                                <th>Kategori</th>
+                                <th>Açıklama</th>
+                                <th>Tür</th>
+                                <th class="text-end">Tutar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="text-muted">@item.Date.ToString("dd.MM.yyyy")</td>
+                                    <td><span class="badge bg-light text-dark border">@item.Category.Name</span></td>
+                                    <td class="fw-semibold">@(string.IsNullOrEmpty(item.Description) ? "-" : item.Description)</td>
+                                    <td>
+                                        @if (item.Category.Type == PennyWise.Models.TransactionType.Income)
+                                        {
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle">Gelir</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Gider</span>
+                                        }
+                                    </td>
+                                    <td class="text-end fw-bold @(item.Category.Type == PennyWise.Models.TransactionType.Income ? "text-success" : "text-danger")">
+                                        @(item.Category.Type == PennyWise.Models.TransactionType.Income ? "+" : "-")@item.Amount.ToString("C2")
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>

@@ -1,0 +1,132 @@
+@model IEnumerable<PennyWise.Models.Bill>
+
+@{
+    ViewData["Title"] = "Gelecek Faturalarınız";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+            <h1 class="h2 mb-0">Gelecek Faturalarınız</h1>
+            <p class="text-muted mb-0">Yaklaşan ödemelerinizi takip edin ve ödendiklerinde gider olarak işaretleyin.</p>
+        </div>
+        <div>
+            <a asp-action="Create" class="btn btn-primary fw-semibold">
+                <i class="fa-solid fa-plus me-2"></i>Yeni Fatura Tanımla
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Sol Kolon: Ödenmemiş Faturalar -->
+        <div class="col-lg-7">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span class="fw-semibold">Ödeme Bekleyen Faturalar</span>
+                    <span class="badge bg-danger rounded-pill">@Model.Count(b => !b.IsPaid) Aktif</span>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.Any(b => !b.IsPaid))
+                    {
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Fatura Adı</th>
+                                        <th>Kategori</th>
+                                        <th>Son Gün</th>
+                                        <th>Tutar</th>
+                                        <th class="text-end">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var bill in Model.Where(b => !b.IsPaid))
+                                    {
+                                        <tr>
+                                            <td class="fw-semibold text-main">@bill.Title</td>
+                                            <td><span class="badge bg-light text-dark border">@bill.Category?.Name</span></td>
+                                            <td class="text-muted small">@bill.DueDate.ToString("dd.MM.yyyy")</td>
+                                            <td class="fw-bold text-danger">@bill.Amount.ToString("C2")</td>
+                                            <td class="text-end">
+                                                <div class="d-flex justify-content-end gap-2">
+                                                    <form asp-action="Pay" asp-route-id="@bill.Id" method="post" class="d-inline">
+                                                        <button type="submit" class="btn btn-sm btn-outline-success py-1 px-3">
+                                                            <i class="fa-solid fa-check me-1"></i> Öde
+                                                        </button>
+                                                    </form>
+                                                    <form asp-action="Delete" asp-route-id="@bill.Id" method="post" class="d-inline" onsubmit="return confirm('Bu faturayı silmek istediğinizden emin misiniz?');">
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger py-1 px-2">
+                                                            <i class="fa-solid fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-5">
+                            <i class="fa-solid fa-circle-check fa-3x mb-3 text-success"></i>
+                            <p class="mb-0">Harika! Ödenmemiş hiçbir faturanız bulunmuyor.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Sağ Kolon: Ödenmiş Geçmiş Faturalar -->
+        <div class="col-lg-5">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span class="fw-semibold">Ödenmiş Faturalar</span>
+                    <span class="badge bg-success rounded-pill">@Model.Count(b => b.IsPaid) Ödendi</span>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.Any(b => b.IsPaid))
+                    {
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Fatura Adı</th>
+                                        <th>Kategori</th>
+                                        <th>Tutar</th>
+                                        <th class="text-end">İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var bill in Model.Where(b => b.IsPaid))
+                                    {
+                                        <tr>
+                                            <td class="fw-semibold text-muted text-decoration-line-through">@bill.Title</td>
+                                            <td><span class="badge bg-light text-muted border">@bill.Category?.Name</span></td>
+                                            <td class="fw-bold text-success">@bill.Amount.ToString("C2")</td>
+                                            <td class="text-end">
+                                                <form asp-action="Delete" asp-route-id="@bill.Id" method="post" class="d-inline" onsubmit="return confirm('Bu faturayı geçmişten silmek istediğinizden emin misiniz?');">
+                                                    <button type="submit" class="btn btn-sm btn-link text-danger p-0 border-0">
+                                                        <i class="fa-solid fa-trash-can"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-5">
+                            <i class="fa-solid fa-receipt fa-3x mb-3 text-secondary"></i>
+                            <p class="mb-0">Henüz geçmişe ait bir ödenmiş fatura kaydı bulunmuyor.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

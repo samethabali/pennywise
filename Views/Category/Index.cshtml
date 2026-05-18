@@ -1,0 +1,28 @@
+@model IEnumerable<PennyWise.Models.Category>
+
+@{
+    ViewData["Title"] = "Kategoriler";
+}
+
+<div class="container mt-4">
+    <h2>Kategoriler</h2>
+    <p>
+        <a asp-action="Create" class="btn btn-primary">Yeni Kategori Ekle</a>
+    </p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Adı</th>
+                <th>Tipi</th>
+            </tr>
+        </thead>
+        <tbody>
+    @foreach (var item in Model) {
+            <tr>
+                <td>@item.Name</td>
+                <td>@(item.Type == PennyWise.Models.TransactionType.Income ? "Gelir" : "Gider")</td>
+            </tr>
+    }
+        </tbody>
+    </table>
+</div>

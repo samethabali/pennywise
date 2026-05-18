@@ -1,0 +1,8 @@
+@model decimal
+
+<div class="user-balance-nav me-3">
+    <span>Kalan Bakiye: </span>
+    <strong class="@(Model >= 0 ? "text-success" : "text-danger")">
+        @Model.ToString("C2")
+    </strong>
+</div>

@@ -1,0 +1,20 @@
+# .NET build çıktıları
+bin/
+obj/
+
+# Kişisel DB şifresi içeren local ayar dosyası - GIT'E GİTMEZ
+appsettings.Development.json
+
+# Visual Studio
+.vs/
+*.user
+
+# Rider / JetBrains
+.idea/
+
+# macOS
+.DS_Store
+
+# Geçici dosyalar
+*.tmp
+*.log

@@ -1,0 +1,50 @@
+@using Microsoft.AspNetCore.Identity
+@using PennyWise.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<ul class="navbar-nav align-items-center">
+@if (SignInManager.IsSignedIn(User))
+{
+    var email = User.Identity?.Name ?? "";
+    var username = !string.IsNullOrEmpty(email) ? email.Split('@')[0] : "Kullanıcı";
+    var displayName = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(username);
+    var firstLetter = !string.IsNullOrEmpty(username) ? username[0].ToString().ToUpper() : "U";
+
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 border-0 px-2 py-1" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="background: transparent;">
+            <div class="d-flex align-items-center justify-content-center bg-primary text-white rounded-circle fw-bold" style="width: 32px; height: 32px; font-size: 0.85rem; box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);">
+                @firstLetter
+            </div>
+            <span class="fw-semibold text-dark d-none d-md-inline" style="font-size: 0.9rem;">@displayName</span>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg mt-2 p-2" aria-labelledby="profileDropdown" style="border-radius: 12px; min-width: 200px; background-color: #FFFFFF;">
+            <li class="px-3 py-2 border-bottom mb-1">
+                <div class="fw-bold text-dark small" style="font-size: 0.85rem;">@displayName</div>
+                <div class="text-muted small text-truncate" style="font-size: 0.75rem;">@email</div>
+            </li>
+            <li>
+                <a class="dropdown-item rounded-3 py-2 d-flex align-items-center gap-2 small text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
+                    <i class="fa-solid fa-gear text-muted"></i> Profil Ayarları
+                </a>
+            </li>
+            <li>
+                <form class="form-inline m-0 p-0" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Dashboard", new { area = "" })">
+                    <button type="submit" class="dropdown-item rounded-3 py-2 d-flex align-items-center gap-2 small text-danger" style="background: none; border: none; width: 100%; text-align: left;">
+                        <i class="fa-solid fa-sign-out-alt"></i> Güvenli Çıkış
+                    </button>
+                </form>
+            </li>
+        </ul>
+    </li>
+}
+else
+{
+    <li class="nav-item">
+        <a class="nav-link fw-semibold" asp-area="Identity" asp-page="/Account/Register"><i class="fa-solid fa-user-plus me-1"></i> Kayıt Ol</a>
+    </li>
+    <li class="nav-item ms-2">
+        <a class="btn btn-primary px-4 rounded-pill text-white fw-bold shadow-sm" asp-area="Identity" asp-page="/Account/Login"><i class="fa-solid fa-sign-in-alt me-1"></i> Giriş Yap</a>
+    </li>
+}
+</ul>
