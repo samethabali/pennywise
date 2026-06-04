@@ -35,9 +35,6 @@ namespace PennyWise.Controllers
             if (string.IsNullOrEmpty(userId))
                 return RedirectToPage("/Account/Login", new { area = "Identity" });
 
-            // Abonelikleri işle ve vadesi gelenleri bütçeye ekle
-            await RecurringTransactionController.ProcessRecurringTransactionsAsync(_context, userId);
-
             var currentDate = DateTime.UtcNow;
             var model = await GetMonthlySummaryAsync(userId, currentDate.Month, currentDate.Year);
             return View(model);
