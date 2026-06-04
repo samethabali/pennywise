@@ -44,8 +44,8 @@
                             @Model.Where(t => t.Category.Type == PennyWise.Models.TransactionType.Income).Sum(t => t.Amount).ToString("C2")
                         </div>
                     </div>
-                    <div class="bg-light p-2 rounded-lg">
-                        <i class="fa-solid fa-arrow-down text-success"></i>
+                    <div class="bg-light p-3 rounded-circle">
+                        <i class="fa-solid fa-circle-arrow-up text-success fa-lg"></i>
                     </div>
                 </div>
             </div>
@@ -57,8 +57,8 @@
                             @Model.Where(t => t.Category.Type == PennyWise.Models.TransactionType.Expense).Sum(t => t.Amount).ToString("C2")
                         </div>
                     </div>
-                    <div class="bg-light p-2 rounded-lg">
-                        <i class="fa-solid fa-arrow-up text-danger"></i>
+                    <div class="bg-light p-3 rounded-circle">
+                        <i class="fa-solid fa-circle-arrow-down text-danger fa-lg"></i>
                     </div>
                 </div>
             </div>
@@ -88,11 +88,11 @@
                                     <td>
                                         @if (item.Category.Type == PennyWise.Models.TransactionType.Income)
                                         {
-                                            <span class="badge badge-income">Gelir</span>
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle">Gelir</span>
                                         }
                                         else
                                         {
-                                            <span class="badge badge-expense">Gider</span>
+                                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Gider</span>
                                         }
                                     </td>
                                     <td class="text-end fw-bold @(item.Category.Type == PennyWise.Models.TransactionType.Income ? "text-success" : "text-danger")">
