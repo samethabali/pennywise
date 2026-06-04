@@ -1,6 +1,8 @@
 # .NET build çıktıları
 bin/
 obj/
+publish/
+
 
 # Kişisel DB şifresi içeren local ayar dosyası - GIT'E GİTMEZ
 appsettings.Development.json
