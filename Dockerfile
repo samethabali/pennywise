@@ -22,7 +22,7 @@ ENV ASPNETCORE_URLS=http://+:8080
 # Environment variables for low-resource environments (Render Free Tier)
 # 1. Disable Server GC to save memory (Workstation GC is much lighter)
 ENV DOTNET_gcServer=0
-# 2. Enable globalization invariant mode to prevent ICU-related segfaults
-ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+# 2. Disable globalization invariant mode to support Turkish culture (tr-TR)
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=0
 
 ENTRYPOINT ["dotnet", "PennyWise.dll"]
