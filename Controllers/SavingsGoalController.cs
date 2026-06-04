@@ -121,7 +121,7 @@ namespace PennyWise.Controllers
                 UserId = userId,
                 CategoryId = savingsCategory.Id,
                 Amount = amount,
-                Date = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc),
+                Date = DateTime.UtcNow,
                 Description = $"'{goal.Title}' hedefine para eklendi"
             };
             

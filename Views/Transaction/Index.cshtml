@@ -76,6 +76,7 @@
                                 <th>Açıklama</th>
                                 <th>Tür</th>
                                 <th class="text-end">Tutar</th>
+                                <th class="text-end" style="width: 180px;">İşlemler</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -97,6 +98,12 @@
                                     </td>
                                     <td class="text-end fw-bold @(item.Category.Type == PennyWise.Models.TransactionType.Income ? "text-success" : "text-danger")">
                                         @(item.Category.Type == PennyWise.Models.TransactionType.Income ? "+" : "-")@item.Amount.ToString("C2")
+                                    </td>
+                                    <td class="text-end">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning me-1">Düzenle</a>
+                                        <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="return confirm('Bu işlemi silmek istediğinizden emin misiniz?');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Sil</button>
+                                        </form>
                                     </td>
                                 </tr>
                             }

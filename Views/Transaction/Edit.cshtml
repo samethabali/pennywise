@@ -1,0 +1,65 @@
+@model PennyWise.ViewModels.TransactionViewModel
+
+@{
+    ViewData["Title"] = "İşlemi Düzenle";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card p-4">
+            <h2 class="mb-3">İşlemi Düzenle</h2>
+            <p class="text-muted small mb-4">Mevcut gelir veya gider işleminizin detaylarını güncelleyin.</p>
+
+            <form asp-action="Edit" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+                <input type="hidden" asp-for="Id" />
+
+                <!-- Kategori Seçimi -->
+                <div class="mb-3">
+                    <label asp-for="CategoryId" class="form-label">Kategori</label>
+                    <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.Categories">
+                        <option value="">-- Kategori Seçin --</option>
+                    </select>
+                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                </div>
+
+                <!-- Tutar ve Tarih -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="Amount" class="form-label">Tutar</label>
+                        <div class="input-group">
+                            <input asp-for="Amount" type="number" step="0.01" class="form-control" placeholder="0.00" />
+                            <span class="input-group-text">₺</span>
+                        </div>
+                        <span asp-validation-for="Amount" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Date" class="form-label">İşlem Tarihi</label>
+                        <input asp-for="Date" class="form-control" type="date" value="@Model.Date.ToString("yyyy-MM-dd")" />
+                        <span asp-validation-for="Date" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- Açıklama -->
+                <div class="mb-4">
+                    <label asp-for="Description" class="form-label">Açıklama (İsteğe Bağlı)</label>
+                    <textarea asp-for="Description" class="form-control" rows="3" placeholder="Ödemenin detaylarını yazın..."></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <!-- Butonlar -->
+                <div class="d-flex gap-3 justify-content-end">
+                    <a asp-action="Index" class="btn btn-outline-primary">İptal</a>
+                    <button type="submit" class="btn btn-primary fw-semibold px-4">
+                        <i class="fa-solid fa-circle-check me-2"></i>Kaydet
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

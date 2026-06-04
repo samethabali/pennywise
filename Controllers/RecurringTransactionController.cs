@@ -28,6 +28,9 @@ namespace PennyWise.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId)) return Challenge();
 
+            // Otomatik tekrarlayan işlemleri tetikle
+            await ProcessRecurringTransactionsAsync(_context, userId);
+
             var recurringTransactions = await _context.RecurringTransactions
                 .Where(r => r.UserId == userId)
                 .Include(r => r.Category)

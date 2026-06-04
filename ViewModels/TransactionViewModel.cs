@@ -5,6 +5,8 @@ namespace PennyWise.ViewModels
 {
     public class TransactionViewModel
     {
+        public int Id { get; set; }
+
         [Required(ErrorMessage = "Lütfen bir kategori seçiniz.")]
         public int CategoryId { get; set; }
 
