@@ -46,42 +46,19 @@
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link" asp-controller="Admin" asp-action="Users"><i class="fa-solid fa-users me-1"></i> Kullanıcılar</a>
+                                        <a class="nav-link text-warning" asp-controller="Admin" asp-action="Index">Admin</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link" asp-controller="Category" asp-action="Index"><i class="fa-solid fa-tags me-1"></i> Kategoriler</a>
-                                    </li>
-                                }
-                                else
-                                {
-                                    <li class="nav-item">
-                                        <a class="nav-link" asp-controller="Dashboard" asp-action="Index"><i class="fa-solid fa-house me-1"></i> Dashboard</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" asp-controller="Transaction" asp-action="Create"><i class="fa-solid fa-plus-circle me-1"></i> Yeni İşlem</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" asp-controller="Transaction" asp-action="Index"><i class="fa-solid fa-list me-1"></i> Tüm İşlemler</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" asp-controller="Bill" asp-action="Index"><i class="fa-solid fa-receipt me-1"></i> Faturalar</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" asp-controller="SavingsGoal" asp-action="Index"><i class="fa-solid fa-bullseye me-1"></i> Hedefler</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" asp-controller="BudgetLimit" asp-action="Index"><i class="fa-solid fa-gauge-high me-1"></i> Bütçe Sınırları</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" asp-controller="RecurringTransaction" asp-action="Index"><i class="fa-solid fa-rotate me-1"></i> Abonelikler</a>
+                                        <a class="nav-link text-warning" asp-controller="Category" asp-action="Index">Kategoriler</a>
                                     </li>
                                 }
                             </ul>
                             @if (User.Identity?.IsAuthenticated == true)
                             {
-                                <div class="me-4 d-flex align-items-center balance-info">
-                                    <i class="fa-solid fa-wallet me-2"></i>
-                                    @await Component.InvokeAsync("Balance")
+                                <div class="me-4 d-flex align-items-center text-muted small fw-medium">
+                                    Net Bakiye: <span class="text-dark fw-bold ms-1">@await Component.InvokeAsync("Balance")</span>
                                 </div>
+                                <div class="vr mx-3 d-none d-sm-block"></div>
                             }
                             <partial name="_LoginPartial" />
                         </div>
