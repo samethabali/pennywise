@@ -1,0 +1,121 @@
+@model IEnumerable<PennyWise.Models.BudgetLimit>
+
+@{
+    ViewData["Title"] = "Aylık Bütçe Limitleriniz";
+    var expenses = ViewBag.CurrentExpenses as Dictionary<int, decimal> ?? new Dictionary<int, decimal>();
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+            <h1 class="h2 mb-0">Aylık Bütçe Limitleriniz</h1>
+            <p class="text-muted mb-0">@ViewBag.CurrentMonth — Kategori bazlı harcama limitlerini belirleyin ve takip edin.</p>
+        </div>
+        <div>
+            <a asp-action="Create" class="btn btn-primary fw-semibold">
+                <i class="fa-solid fa-plus me-2"></i>Yeni Limit Belirle
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row g-4">
+        @if (Model.Any())
+        {
+            @foreach (var limit in Model)
+            {
+                var spent = expenses.ContainsKey(limit.CategoryId) ? expenses[limit.CategoryId] : 0m;
+                var percentage = limit.LimitAmount > 0 ? Math.Min(Math.Round((double)(spent / limit.LimitAmount) * 100, 1), 100) : 0;
+                var remaining = limit.LimitAmount - spent;
+                var isExceeded = spent > limit.LimitAmount;
+                var isWarning = percentage >= 80 && !isExceeded;
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 d-flex flex-column justify-content-between @(isExceeded ? "border-danger" : "")">
+                        <div>
+                            <div class="card-header d-flex justify-content-between align-items-start border-0 pb-0 bg-transparent pt-3 px-3">
+                                <div>
+                                    <h5 class="fw-bold mb-0 text-main">@limit.Category?.Name</h5>
+                                    <span class="text-muted small">@limit.Month/@limit.Year</span>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <a asp-action="Edit" asp-route-id="@limit.Id" class="btn btn-sm btn-link text-primary p-0 border-0" title="Düzenle">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </a>
+                                    <form asp-action="Delete" asp-route-id="@limit.Id" method="post" onsubmit="return confirm('Bu bütçe limitini silmek istediğinizden emin misiniz?');">
+                                        <button type="submit" class="btn btn-sm btn-link text-danger p-0 border-0" title="Sil">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <div class="card-body px-3 pt-2">
+                                @if (isExceeded)
+                                {
+                                    <div class="alert alert-danger py-2 px-3 small mb-3">
+                                        <i class="fa-solid fa-triangle-exclamation me-1"></i>
+                                        <strong>Limit Aşıldı!</strong> Bu kategoride bütçenizi <strong>@((spent - limit.LimitAmount).ToString("C2"))</strong> aştınız.
+                                    </div>
+                                }
+                                else if (isWarning)
+                                {
+                                    <div class="alert alert-warning py-2 px-3 small mb-3">
+                                        <i class="fa-solid fa-exclamation-circle me-1"></i>
+                                        Dikkat! Bütçe limitinizin <strong>%@percentage</strong>'ine ulaştınız.
+                                    </div>
+                                }
+
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="small fw-semibold text-muted">Harcama Durumu</span>
+                                    <span class="small fw-bold">%@percentage</span>
+                                </div>
+                                <div class="progress mb-3" style="height: 10px; background-color: var(--border-color);">
+                                    <div class="progress-bar @(isExceeded ? "bg-danger" : isWarning ? "bg-warning" : "bg-success")"
+                                         role="progressbar"
+                                         style="width: @(percentage)%; border-radius: 5px;"
+                                         aria-valuenow="@percentage" aria-valuemin="0" aria-valuemax="100">
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between small text-muted">
+                                    <div>Harcanan: <span class="fw-bold @(isExceeded ? "text-danger" : "text-main")">@spent.ToString("C2")</span></div>
+                                    <div>Limit: <span class="fw-bold text-main">@limit.LimitAmount.ToString("C2")</span></div>
+                                </div>
+                                <div class="text-center mt-2">
+                                    <span class="small @(remaining >= 0 ? "text-success" : "text-danger") fw-bold">
+                                        Kalan: @remaining.ToString("C2")
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12">
+                <div class="card text-center py-5">
+                    <div class="card-body">
+                        <i class="fa-solid fa-gauge-high fa-4x text-muted mb-3"></i>
+                        <h3>Henüz Bütçe Limiti Belirlemediniz</h3>
+                        <p class="text-muted max-width-md mx-auto mb-4">
+                            Kategorilere aylık harcama limiti koyarak bütçenizi kontrol altında tutun.
+                        </p>
+                        <a asp-action="Create" class="btn btn-primary fw-semibold px-4">
+                            <i class="fa-solid fa-plus me-2"></i>İlk Bütçe Limitini Belirle
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

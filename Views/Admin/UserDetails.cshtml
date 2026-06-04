@@ -1,0 +1,167 @@
+@model PennyWise.ViewModels.AdminUserDetailsViewModel
+@{
+    ViewData["Title"] = "Kullanıcı Detayları";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <a asp-action="Users" class="btn btn-sm btn-outline-secondary mb-2">
+                <i class="fa-solid fa-arrow-left me-1"></i> Kullanıcı Listesine Dön
+            </a>
+            <h2 class="fw-bold text-primary"><i class="fa-solid fa-user-check me-2"></i>Kullanıcı Raporu</h2>
+        </div>
+    </div>
+
+    <!-- Kullanıcı Özeti Kartı -->
+    <div class="card glass-card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="d-flex align-items-center mb-3">
+                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px; font-size: 24px;">
+                    @Model.UserEmail.Substring(0, 1).ToUpper()
+                </div>
+                <div>
+                    <h4 class="mb-0 fw-bold">@Model.UserEmail</h4>
+                    <span class="badge bg-success">Aktif Kullanıcı</span>
+                </div>
+            </div>
+            
+            <div class="row g-3 mt-2 text-center">
+                <div class="col-md-4">
+                    <div class="p-3 bg-light rounded shadow-sm" style="background: rgba(255,255,255,0.2) !important;">
+                        <h6 class="text-muted mb-1">Toplam İşlem Adedi</h6>
+                        <h3 class="fw-bold text-info mb-0">@Model.TotalTransactionCount</h3>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 bg-light rounded shadow-sm" style="background: rgba(255,255,255,0.2) !important;">
+                        <h6 class="text-muted mb-1">Toplam İşlem Hacmi</h6>
+                        <h3 class="fw-bold text-success mb-0">@Model.TotalTransactionVolume.ToString("N2") ₺</h3>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 bg-light rounded shadow-sm" style="background: rgba(255,255,255,0.2) !important;">
+                        <h6 class="text-muted mb-1">Bütçe Sınırı Kuralları</h6>
+                        <h3 class="fw-bold text-warning mb-0">@Model.TotalBudgetLimitsCount</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Son 5 İşlem -->
+        <div class="col-md-7">
+            <div class="card glass-card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-0 pt-4 pb-0">
+                    <h5 class="fw-bold"><i class="fa-solid fa-clock-rotate-left text-primary me-2"></i>Son İşlemler (Maks. 5)</h5>
+                </div>
+                <div class="card-body p-0 mt-3">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Tarih</th>
+                                    <th>Kategori</th>
+                                    <th>Açıklama</th>
+                                    <th class="text-end pe-4">Tutar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var t in Model.RecentTransactions)
+                                {
+                                    <tr>
+                                        <td class="ps-4 text-muted">@t.Date.ToString("dd MMM yyyy")</td>
+                                        <td>
+                                            @if (t.Category != null)
+                                            {
+                                                <span class="badge @(t.Category.Type == PennyWise.Models.TransactionType.Income ? "bg-success" : "bg-danger")">
+                                                    @t.Category.Name
+                                                </span>
+                                            }
+                                        </td>
+                                        <td>@t.Description</td>
+                                        <td class="text-end pe-4 fw-bold @(t.Amount > 0 ? "text-success" : "text-danger")">
+                                            @t.Amount.ToString("N2") ₺
+                                        </td>
+                                    </tr>
+                                }
+                                @if (!Model.RecentTransactions.Any())
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center py-4 text-muted">Bu kullanıcının henüz hiçbir işlemi yok.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bütçe Sınırları -->
+        <div class="col-md-5">
+            <div class="card glass-card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-0 pt-4 pb-0">
+                    <h5 class="fw-bold"><i class="fa-solid fa-gauge-high text-warning me-2"></i>Tanımlı Bütçe Sınırları</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.BudgetLimits.Any())
+                    {
+                        <ul class="list-group list-group-flush">
+                            @foreach (var limit in Model.BudgetLimits)
+                            {
+                                <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center border-0 px-0 mb-2">
+                                    <div class="d-flex align-items-center">
+                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                            <i class="fa-solid fa-tag text-muted"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0 fw-bold">@(limit.Category?.Name ?? "Tüm Kategoriler")</h6>
+                                            <small class="text-muted">Aylık Sınır</small>
+                                        </div>
+                                    </div>
+                                    <span class="badge bg-danger rounded-pill fs-6 px-3">
+                                        @limit.LimitAmount.ToString("N2") ₺
+                                    </span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-gauge-simple fa-2x mb-2 text-light"></i>
+                            <p class="mb-0">Kullanıcı henüz hiçbir kategoriye bütçe sınırı koymamış.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .glass-card {
+        background: rgba(255, 255, 255, 0.45);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 20px;
+        overflow: hidden;
+    }
+    [data-bs-theme="dark"] .glass-card {
+        background: rgba(30, 41, 59, 0.45);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    [data-bs-theme="dark"] .table-light {
+        background-color: rgba(0, 0, 0, 0.2);
+        color: #fff;
+    }
+    [data-bs-theme="dark"] .table {
+        color: #fff;
+    }
+    [data-bs-theme="dark"] .list-group-item {
+        color: #fff;
+    }
+</style>

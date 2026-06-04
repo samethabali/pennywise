@@ -1,0 +1,96 @@
+@model PennyWise.Models.BudgetLimit
+
+@{
+    ViewData["Title"] = "Bütçe Limitini Düzenle";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card p-4">
+            <h2 class="mb-3">Bütçe Limitini Düzenle</h2>
+            <p class="text-muted small mb-4">Mevcut bütçe limiti bilgilerini güncelleyin.</p>
+
+            <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+
+                <!-- Kategori Seçimi -->
+                <div class="mb-3">
+                    <label asp-for="CategoryId" class="form-label">Gider Kategorisi</label>
+                    <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.Categories">
+                        <option value="">-- Kategori Seçin --</option>
+                    </select>
+                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                </div>
+
+                <!-- Tutar -->
+                <div class="mb-3">
+                    <label asp-for="LimitAmount" class="form-label">Aylık Limit Tutarı</label>
+                    <div class="input-group">
+                        <input asp-for="LimitAmount" type="number" step="0.01" min="0.01" class="form-control" placeholder="0.00" />
+                        <span class="input-group-text">₺</span>
+                    </div>
+                    <span asp-validation-for="LimitAmount" class="text-danger"></span>
+                </div>
+
+                <!-- Ay ve Yıl -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label asp-for="Month" class="form-label">Ay</label>
+                        <select asp-for="Month" class="form-select">
+                            <option value="1">Ocak</option>
+                            <option value="2">Şubat</option>
+                            <option value="3">Mart</option>
+                            <option value="4">Nisan</option>
+                            <option value="5">Mayıs</option>
+                            <option value="6">Haziran</option>
+                            <option value="7">Temmuz</option>
+                            <option value="8">Ağustos</option>
+                            <option value="9">Eylül</option>
+                            <option value="10">Ekim</option>
+                            <option value="11">Kasım</option>
+                            <option value="12">Aralık</option>
+                        </select>
+                        <span asp-validation-for="Month" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Year" class="form-label">Yıl</label>
+                        <input asp-for="Year" type="number" min="2024" max="2030" class="form-control" />
+                        <span asp-validation-for="Year" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- Butonlar -->
+                <div class="d-flex gap-3 justify-content-end">
+                    <a asp-action="Index" class="btn btn-outline-primary">İptal</a>
+                    <button type="submit" class="btn btn-primary fw-semibold px-4">
+                        <i class="fa-solid fa-pen-to-square me-2"></i>Güncelle
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var limitInput = document.getElementById('LimitAmount');
+            if (limitInput) {
+                limitInput.addEventListener('input', function () {
+                    if (parseFloat(this.value) < 0) {
+                        this.value = '';
+                        this.setCustomValidity('Limit tutarı negatif olamaz!');
+                        this.reportValidity();
+                    } else {
+                        this.setCustomValidity('');
+                    }
+                });
+                limitInput.addEventListener('keydown', function (e) {
+                    if (e.key === '-' || e.key === 'e') e.preventDefault();
+                });
+            }
+        });
+    </script>
+}

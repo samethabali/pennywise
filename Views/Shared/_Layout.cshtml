@@ -39,25 +39,40 @@
                         </button>
                         <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                             <ul class="navbar-nav flex-grow-1">
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Dashboard" asp-action="Index"><i class="fa-solid fa-house me-1"></i> Dashboard</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Transaction" asp-action="Create"><i class="fa-solid fa-plus-circle me-1"></i> Yeni İşlem</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Transaction" asp-action="Index"><i class="fa-solid fa-list me-1"></i> Tüm İşlemler</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Bill" asp-action="Index"><i class="fa-solid fa-receipt me-1"></i> Faturalar</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="SavingsGoal" asp-action="Index"><i class="fa-solid fa-bullseye me-1"></i> Hedefler</a>
-                                </li>
                                 @if (User.IsInRole("Admin"))
                                 {
                                     <li class="nav-item">
-                                        <a class="nav-link text-warning" asp-controller="Category" asp-action="Index"><i class="fa-solid fa-lock me-1"></i> Kategoriler (Admin)</a>
+                                        <a class="nav-link" asp-controller="Admin" asp-action="Index"><i class="fa-solid fa-shield-halved me-1"></i> Admin Paneli</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-controller="Admin" asp-action="Users"><i class="fa-solid fa-users me-1"></i> Kullanıcılar</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-controller="Category" asp-action="Index"><i class="fa-solid fa-tags me-1"></i> Kategoriler</a>
+                                    </li>
+                                }
+                                else
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-controller="Dashboard" asp-action="Index"><i class="fa-solid fa-house me-1"></i> Dashboard</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-controller="Transaction" asp-action="Create"><i class="fa-solid fa-plus-circle me-1"></i> Yeni İşlem</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-controller="Transaction" asp-action="Index"><i class="fa-solid fa-list me-1"></i> Tüm İşlemler</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-controller="Bill" asp-action="Index"><i class="fa-solid fa-receipt me-1"></i> Faturalar</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-controller="SavingsGoal" asp-action="Index"><i class="fa-solid fa-bullseye me-1"></i> Hedefler</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-controller="BudgetLimit" asp-action="Index"><i class="fa-solid fa-gauge-high me-1"></i> Bütçe Sınırları</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-controller="RecurringTransaction" asp-action="Index"><i class="fa-solid fa-rotate me-1"></i> Abonelikler</a>
                                     </li>
                                 }
                             </ul>

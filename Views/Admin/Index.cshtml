@@ -1,0 +1,80 @@
+@model PennyWise.ViewModels.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Paneli";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary"><i class="fa-solid fa-shield-halved me-2"></i>Admin Paneli</h2>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card glass-card h-100 border-0 shadow-sm p-3">
+                <div class="card-body text-center">
+                    <div class="mb-3 text-primary">
+                        <i class="fa-solid fa-users fa-3x"></i>
+                    </div>
+                    <h5 class="card-title text-muted mb-1">Toplam Kullanıcı</h5>
+                    <h2 class="fw-bold mb-0">@Model.TotalUsers</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card glass-card h-100 border-0 shadow-sm p-3">
+                <div class="card-body text-center">
+                    <div class="mb-3 text-warning">
+                        <i class="fa-solid fa-tags fa-3x"></i>
+                    </div>
+                    <h5 class="card-title text-muted mb-1">Kategori Sayısı</h5>
+                    <h2 class="fw-bold mb-0">@Model.TotalCategories</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card glass-card h-100 border-0 shadow-sm p-3">
+                <div class="card-body text-center">
+                    <div class="mb-3 text-info">
+                        <i class="fa-solid fa-chart-line fa-3x"></i>
+                    </div>
+                    <h5 class="card-title text-muted mb-1">İşlem Sayısı</h5>
+                    <h2 class="fw-bold mb-0">@Model.TotalTransactionsCount</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card glass-card border-0 shadow-sm p-4">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h4 class="mb-0 fw-bold">Toplam İşlem Hacmi</h4>
+                    <div class="badge bg-primary fs-5 p-3 rounded-pill">
+                        @Model.TotalTransactionVolume.ToString("C")
+                    </div>
+                </div>
+                <p class="text-muted">Platform üzerinde tüm kullanıcıların gerçekleştirdiği gelir ve gider hareketlerinin toplam hacmi.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .glass-card {
+        background: rgba(255, 255, 255, 0.45);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 20px;
+        transition: transform 0.3s ease;
+    }
+    .glass-card:hover {
+        transform: translateY(-5px);
+    }
+    [data-bs-theme="dark"] .glass-card {
+        background: rgba(30, 41, 59, 0.45);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+</style>

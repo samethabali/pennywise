@@ -1,0 +1,118 @@
+@{
+    ViewData["Title"] = "Kullanıcı Yönetimi";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary"><i class="fa-solid fa-users-gear me-2"></i>Kullanıcı Yönetimi</h2>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="fa-solid fa-check-circle me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            <i class="fa-solid fa-circle-exclamation me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card glass-card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Email / Kullanıcı Adı</th>
+                            <th>Kayıt Onayı</th>
+                            <th>İşlem Sayısı</th>
+                            <th>Hacim (₺)</th>
+                            <th>Bütçe Kuralları</th>
+                            <th class="text-end pe-4">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in ViewBag.Users)
+                        {
+                            var user = item.User as PennyWise.Models.ApplicationUser;
+                            var tCount = (int)item.TransactionCount;
+                            var tVol = (decimal)item.TransactionVolume;
+                            var bCount = (int)item.BudgetLimitCount;
+
+                            <tr>
+                                <td class="ps-4 fw-bold">
+                                    <div class="d-flex align-items-center">
+                                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                            @user.Email.Substring(0, 1).ToUpper()
+                                        </div>
+                                        @user.Email
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (user.EmailConfirmed)
+                                    {
+                                        <span class="badge bg-success"><i class="fa-solid fa-check me-1"></i>Onaylı</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark">Bekliyor</span>
+                                    }
+                                </td>
+                                <td><span class="badge bg-info text-dark rounded-pill">@tCount İşlem</span></td>
+                                <td><span class="fw-bold text-success">@tVol.ToString("N2") ₺</span></td>
+                                <td><span class="badge bg-secondary rounded-pill">@bCount Kural</span></td>
+                                <td class="text-end pe-4">
+                                    <a asp-action="UserDetails" asp-route-id="@user.Id" class="btn btn-sm btn-outline-primary me-2">
+                                        <i class="fa-solid fa-magnifying-glass me-1"></i> Detaylar
+                                    </a>
+                                    <form asp-action="DeleteUser" asp-route-id="@user.Id" method="post" class="d-inline" onsubmit="return confirm('Bu kullanıcıyı ve tüm verilerini kalıcı olarak silmek istediğinize emin misiniz? Bu işlem geri alınamaz!');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="fa-solid fa-trash me-1"></i> Sil
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                        @if (ViewBag.Users.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-muted">
+                                    <i class="fa-solid fa-user-slash fa-2x mb-2"></i>
+                                    <p class="mb-0">Sistemde henüz başka bir kullanıcı bulunmuyor.</p>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .glass-card {
+        background: rgba(255, 255, 255, 0.45);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 20px;
+        overflow: hidden;
+    }
+    [data-bs-theme="dark"] .glass-card {
+        background: rgba(30, 41, 59, 0.45);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    [data-bs-theme="dark"] .table-light {
+        background-color: rgba(0, 0, 0, 0.2);
+        color: #fff;
+    }
+    [data-bs-theme="dark"] .table {
+        color: #fff;
+    }
+</style>

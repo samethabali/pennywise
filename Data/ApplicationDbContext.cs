@@ -16,6 +16,7 @@ namespace PennyWise.Data
         public DbSet<BudgetLimit> BudgetLimits { get; set; }
         public DbSet<Bill> Bills { get; set; }
         public DbSet<SavingsGoal> SavingsGoals { get; set; }
+        public DbSet<RecurringTransaction> RecurringTransactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -40,6 +41,10 @@ namespace PennyWise.Data
 
             builder.Entity<SavingsGoal>()
                 .Property(s => s.CurrentAmount)
+                .HasColumnType("decimal(18,2)");
+
+            builder.Entity<RecurringTransaction>()
+                .Property(r => r.Amount)
                 .HasColumnType("decimal(18,2)");
         }
     }
