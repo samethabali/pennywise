@@ -42,13 +42,24 @@ namespace PennyWise.Controllers
         public async Task<IActionResult> Create()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // Dijital Abonelikler kategorisi var mı kontrol et, yoksa oluştur
+            var subCategory = await _context.Categories.FirstOrDefaultAsync(c => c.Name == "Dijital Abonelikler" && c.Type == TransactionType.Expense);
+            if (subCategory == null)
+            {
+                subCategory = new Category { Name = "Dijital Abonelikler", Type = TransactionType.Expense };
+                _context.Categories.Add(subCategory);
+                await _context.SaveChangesAsync();
+            }
+
             var categories = await _context.Categories.ToListAsync();
-            ViewBag.Categories = new SelectList(categories, "Id", "Name");
+            ViewBag.Categories = new SelectList(categories, "Id", "Name", subCategory.Id);
 
             return View(new RecurringTransactionViewModel
             {
                 StartDate = DateTime.Now,
-                RecurrenceType = RecurrenceType.Monthly
+                RecurrenceType = RecurrenceType.Monthly,
+                CategoryId = subCategory.Id
             });
         }
 
