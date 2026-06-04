@@ -81,6 +81,17 @@ namespace PennyWise.Controllers
             var goal = await _context.SavingsGoals.FirstOrDefaultAsync(g => g.Id == id && g.UserId == userId);
             if (goal == null) return NotFound();
 
+            // Net bakiye kontrolü
+            var totalIncome = await _context.Transactions.Where(t => t.UserId == userId && t.Category.Type == TransactionType.Income).SumAsync(t => t.Amount);
+            var totalExpense = await _context.Transactions.Where(t => t.UserId == userId && t.Category.Type == TransactionType.Expense).SumAsync(t => t.Amount);
+            var netBalance = totalIncome - totalExpense;
+
+            if (amount > netBalance)
+            {
+                TempData["Error"] = $"Yetersiz bakiye! Mevcut net bakiyeniz: {netBalance:C2}. Hedefe daha fazla para ekleyemezsiniz.";
+                return RedirectToAction(nameof(Index));
+            }
+
             goal.CurrentAmount += amount;
             
             // Eğer hedef miktarı aşarsa hedef miktarında sabitleyelim
@@ -136,6 +147,46 @@ namespace PennyWise.Controllers
             _context.SavingsGoals.Remove(goal);
             await _context.SaveChangesAsync();
 
+            return RedirectToAction(nameof(Index));
+        }
+
+        // Hedef Güncelleme Sayfası
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Challenge();
+
+            var goal = await _context.SavingsGoals.FirstOrDefaultAsync(g => g.Id == id && g.UserId == userId);
+            if (goal == null) return NotFound();
+
+            return View(goal);
+        }
+
+        // Hedef Güncelleme İşlemi
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, SavingsGoal updatedGoal)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Challenge();
+
+            if (id != updatedGoal.Id) return NotFound();
+
+            var goal = await _context.SavingsGoals.FirstOrDefaultAsync(g => g.Id == id && g.UserId == userId);
+            if (goal == null) return NotFound();
+
+            goal.Title = updatedGoal.Title;
+            goal.TargetAmount = updatedGoal.TargetAmount;
+            
+            if (goal.CurrentAmount > goal.TargetAmount)
+            {
+                goal.CurrentAmount = goal.TargetAmount;
+            }
+
+            await _context.SaveChangesAsync();
+            
+            TempData["Success"] = "Hedef başarıyla güncellendi.";
             return RedirectToAction(nameof(Index));
         }
     }
