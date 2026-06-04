@@ -35,6 +35,14 @@ builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
+// Para biriminin ¤ yerine ₺ (TL) olarak düzgün görünmesi için Türk kültürü ayarlandı
+var supportedCultures = new[] { "tr-TR" };
+var localizationOptions = new RequestLocalizationOptions()
+    .SetDefaultCulture(supportedCultures[0])
+    .AddSupportedCultures(supportedCultures)
+    .AddSupportedUICultures(supportedCultures);
+app.UseRequestLocalization(localizationOptions);
+
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();

@@ -89,9 +89,33 @@ namespace PennyWise.Controllers
                 goal.CurrentAmount = goal.TargetAmount;
             }
 
-            // Birikime ayrılan parayı da otomatik olarak "Transactions" tablosuna bir gider (veya birikim transferi) olarak kaydedebiliriz
-            // Ancak genellikle birikimler ayrı takip edildiği için sadece hedefe bütçe ekliyoruz.
+            // "Birikim" adında bir gider kategorisi var mı kontrol et, yoksa otomatik oluştur
+            var savingsCategory = await _context.Categories
+                .FirstOrDefaultAsync(c => c.Name == "Birikim" && c.Type == TransactionType.Expense);
+                
+            if (savingsCategory == null)
+            {
+                savingsCategory = new Category
+                {
+                    Name = "Birikim",
+                    Type = TransactionType.Expense
+                };
+                _context.Categories.Add(savingsCategory);
+                await _context.SaveChangesAsync(); // Kategoriyi kaydet ki Id'sini alabilelim
+            }
+
+            // Birikime eklenen tutarı işlemler (Transactions) tablosuna gider olarak kaydet (Bakiyeden düşmesi için)
+            var transaction = new Transaction
+            {
+                UserId = userId,
+                CategoryId = savingsCategory.Id,
+                Amount = amount,
+                Date = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc),
+                Description = $"'{goal.Title}' hedefine para eklendi"
+            };
             
+            _context.Transactions.Add(transaction);
+
             await _context.SaveChangesAsync();
             TempData["Success"] = $"'{goal.Title}' hedefine başarıyla {amount:C2} eklendi!";
 

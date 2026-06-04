@@ -50,6 +50,29 @@ namespace PennyWise.Controllers
 
             if (ModelState.IsValid)
             {
+                // Net Bakiye Kontrolü (Gider eklenecekse bakiyeyi kontrol et)
+                var category = await _context.Categories.FindAsync(model.CategoryId);
+                if (category != null && category.Type == TransactionType.Expense)
+                {
+                    var totalIncome = await _context.Transactions
+                        .Where(t => t.UserId == userId && t.Category.Type == TransactionType.Income)
+                        .SumAsync(t => t.Amount);
+                        
+                    var totalExpense = await _context.Transactions
+                        .Where(t => t.UserId == userId && t.Category.Type == TransactionType.Expense)
+                        .SumAsync(t => t.Amount);
+                        
+                    var netBalance = totalIncome - totalExpense;
+                    
+                    if (model.Amount > netBalance)
+                    {
+                        ModelState.AddModelError("", $"Hata: Yetersiz bakiye! Mevcut net bakiyeniz: {netBalance:C2}. Net bakiyeden daha fazla harcama yapamazsınız.");
+                        var categoriesForError = await _context.Categories.ToListAsync();
+                        ViewBag.Categories = new SelectList(categoriesForError, "Id", "Name");
+                        return View(model);
+                    }
+                }
+
                 var isExceeded = await IsBudgetExceededAsync(userId, model.CategoryId, model.Amount);
                 if (isExceeded)
                 {

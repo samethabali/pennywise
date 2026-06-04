@@ -9,6 +9,7 @@ namespace PennyWise.ViewModels
         public decimal TotalExpense { get; set; }
         public decimal NetBalance { get; set; }
         public List<CategorySummaryDto> CategoryDistribution { get; set; }
+        public List<CategorySummaryDto> IncomeDistribution { get; set; }
         public List<Bill> UpcomingBills { get; set; }
         public List<SavingsGoal> SavingsGoals { get; set; }
     }

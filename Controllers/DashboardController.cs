@@ -94,6 +94,15 @@ namespace PennyWise.Controllers
                     TotalAmount = g.Sum(x => x.Amount)
                 }).ToList();
 
+            var incomeSummary = transactions
+                .Where(t => t.Category.Type == TransactionType.Income)
+                .GroupBy(t => t.Category.Name)
+                .Select(g => new CategorySummaryDto
+                {
+                    CategoryName = g.Key,
+                    TotalAmount = g.Sum(x => x.Amount)
+                }).ToList();
+
             decimal totalIncome = transactions.Where(t => t.Category.Type == TransactionType.Income).Sum(t => t.Amount);
             decimal totalExpense = transactions.Where(t => t.Category.Type == TransactionType.Expense).Sum(t => t.Amount);
 
@@ -117,6 +126,7 @@ namespace PennyWise.Controllers
                 TotalExpense = totalExpense,
                 NetBalance = totalIncome - totalExpense,
                 CategoryDistribution = categorySummary,
+                IncomeDistribution = incomeSummary,
                 UpcomingBills = upcomingBills,
                 SavingsGoals = savingsGoals
             };
