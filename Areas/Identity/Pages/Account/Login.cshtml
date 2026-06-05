@@ -6,59 +6,423 @@
     ViewData["HideNavbarLinks"] = true;
 }
 
-<div class="login-bg-wrapper">
-    <div class="neon-lines">
-        <div class="neon-line nl-1"></div>
-        <div class="neon-line nl-2"></div>
-        <div class="neon-line nl-3"></div>
-        <div class="neon-line nl-4"></div>
-    </div>
-</div>
+<style>
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+    }
 
-<div class="row justify-content-center align-items-center min-vh-100 m-0 position-relative" style="z-index: 10;">
-    <div class="col-md-5 col-lg-4 px-4">
-        <div class="card card-login p-4 shadow-lg border-0">
-            <div class="text-center mb-4">
-                <div class="login-3d-icon mb-3">
-                    <i class="fa-solid fa-shield-halved"></i>
-                    <i class="fa-solid fa-user-lock"></i>
+    .pw-login-wrapper {
+        display: flex;
+        height: 100vh;
+        width: 100vw;
+        background: #0f172a;
+    }
+
+    /* ===== SOL PANEL ===== */
+    .pw-left-panel {
+        flex: 1;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 60px 50px;
+        background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 50%, #1a1040 100%);
+        overflow: hidden;
+    }
+
+    .pw-left-panel::before {
+        content: '';
+        position: absolute;
+        top: -200px; left: -200px;
+        width: 500px; height: 500px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(59,130,246,0.2) 0%, transparent 70%);
+        animation: pulse-glow 4s ease-in-out infinite;
+    }
+
+    .pw-left-panel::after {
+        content: '';
+        position: absolute;
+        bottom: -150px; right: -150px;
+        width: 400px; height: 400px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%);
+        animation: pulse-glow 4s ease-in-out infinite 2s;
+    }
+
+    @@keyframes pulse-glow {
+        0%, 100% { transform: scale(1); opacity: 0.6; }
+        50% { transform: scale(1.1); opacity: 1; }
+    }
+
+    .pw-float-cards {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0; left: 0;
+        pointer-events: none;
+    }
+
+    .pw-float-card {
+        position: absolute;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 16px;
+        backdrop-filter: blur(4px);
+        animation: float-card 6s ease-in-out infinite;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 18px;
+        font-size: 13px;
+        color: rgba(255,255,255,0.7);
+    }
+
+    .pw-float-card:nth-child(1) { top: 15%; left: 10%; animation-delay: 0s; }
+    .pw-float-card:nth-child(2) { top: 40%; right: 8%; animation-delay: 1.5s; }
+    .pw-float-card:nth-child(3) { bottom: 20%; left: 12%; animation-delay: 3s; }
+
+    @@keyframes float-card {
+        0%, 100% { transform: translateY(0px) rotate(-1deg); }
+        50% { transform: translateY(-18px) rotate(1deg); }
+    }
+
+    .pw-float-card .fc-icon {
+        width: 32px; height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+    }
+
+    .fc-icon.green  { background: rgba(16,185,129,0.2);  color: #10b981; }
+    .fc-icon.blue   { background: rgba(59,130,246,0.2);  color: #3b82f6; }
+    .fc-icon.purple { background: rgba(139,92,246,0.2);  color: #8b5cf6; }
+
+    .pw-brand {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .pw-logo-icon {
+        width: 80px; height: 80px;
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 36px;
+        color: white;
+        margin: 0 auto 20px;
+        box-shadow: 0 20px 60px rgba(59,130,246,0.4);
+        animation: icon-bounce 3s ease-in-out infinite;
+    }
+
+    @@keyframes icon-bounce {
+        0%, 100% { transform: translateY(0);    box-shadow: 0 20px 60px rgba(59,130,246,0.4); }
+        50%       { transform: translateY(-8px); box-shadow: 0 30px 80px rgba(59,130,246,0.6); }
+    }
+
+    .pw-brand h1 {
+        font-size: 2.4rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #ffffff 0%, #93c5fd 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 10px;
+        letter-spacing: -0.5px;
+    }
+
+    .pw-brand p {
+        color: rgba(255,255,255,0.5);
+        font-size: 1rem;
+        line-height: 1.6;
+        max-width: 320px;
+    }
+
+    .pw-stats {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        gap: 16px;
+    }
+
+    .pw-stat {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 16px;
+        padding: 18px 22px;
+        text-align: center;
+        backdrop-filter: blur(10px);
+    }
+
+    .pw-stat .val { font-size: 1.5rem; font-weight: 700; color: #ffffff; display: block; }
+    .pw-stat .lbl { font-size: 0.72rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* ===== SAĞ PANEL ===== */
+    .pw-right-panel {
+        width: 480px;
+        min-width: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #ffffff;
+        padding: 50px;
+        overflow-y: auto;
+    }
+
+    .pw-form-inner { width: 100%; max-width: 360px; }
+
+    .pw-form-header { margin-bottom: 36px; }
+
+    .pw-form-header .badge-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #eff6ff;
+        color: #3b82f6;
+        border: 1px solid #bfdbfe;
+        border-radius: 20px;
+        padding: 4px 12px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 14px;
+    }
+
+    .pw-form-header h2 {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin: 0 0 8px;
+        letter-spacing: -0.5px;
+    }
+
+    .pw-form-header p { color: #64748b; font-size: 0.92rem; margin: 0; }
+
+    .pw-input-group { margin-bottom: 18px; }
+
+    .pw-input-group label {
+        display: block;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 7px;
+    }
+
+    .pw-input-wrap { position: relative; }
+
+    .pw-input-wrap .pw-input-icon {
+        position: absolute;
+        left: 14px; top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        font-size: 14px;
+        pointer-events: none;
+    }
+
+    .pw-input-wrap input {
+        width: 100%;
+        padding: 13px 14px 13px 40px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 0.92rem;
+        color: #0f172a;
+        background: #f8fafc;
+        transition: all 0.2s ease;
+        outline: none;
+        box-sizing: border-box;
+    }
+
+    .pw-input-wrap input:focus {
+        border-color: #3b82f6;
+        background: #ffffff;
+        box-shadow: 0 0 0 4px rgba(59,130,246,0.1);
+    }
+
+    .pw-input-wrap input::placeholder { color: #94a3b8; }
+
+    .pw-form-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+    }
+
+    .pw-remember { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .pw-remember input[type="checkbox"] { width: 16px; height: 16px; accent-color: #3b82f6; cursor: pointer; }
+    .pw-remember span { font-size: 0.84rem; color: #64748b; }
+
+    .pw-forgot { font-size: 0.84rem; color: #3b82f6; text-decoration: none; font-weight: 500; }
+    .pw-forgot:hover { text-decoration: underline; }
+
+    .pw-btn-submit {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #3b82f6, #6366f1);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 4px 20px rgba(59,130,246,0.35);
+        letter-spacing: 0.3px;
+    }
+
+    .pw-btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(59,130,246,0.5);
+        background: linear-gradient(135deg, #2563eb, #4f46e5);
+    }
+
+    .pw-btn-submit:active { transform: translateY(0); }
+
+    .pw-register-link {
+        text-align: center;
+        margin-top: 24px;
+        padding-top: 24px;
+        border-top: 1px solid #f1f5f9;
+        font-size: 0.88rem;
+        color: #64748b;
+    }
+
+    .pw-register-link a { color: #3b82f6; font-weight: 600; text-decoration: none; }
+    .pw-register-link a:hover { text-decoration: underline; }
+
+    .text-danger { color: #ef4444 !important; font-size: 0.78rem; margin-top: 4px; display: block; }
+
+    @@media (max-width: 768px) {
+        .pw-left-panel { display: none; }
+        .pw-right-panel { width: 100%; min-width: unset; }
+    }
+</style>
+
+<div class="pw-login-wrapper">
+
+    <!-- SOL PANEL -->
+    <div class="pw-left-panel">
+        <div class="pw-float-cards">
+            <div class="pw-float-card">
+                <div class="fc-icon green"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                <div>
+                    <div style="font-weight:700;color:#fff;">+₺4.250</div>
+                    <div style="font-size:11px;">Bu ay gelir</div>
                 </div>
-                <h2 class="login-title">Hoş Geldin</h2>
-                <p class="login-subtitle">Geleceğin finansal özgürlüğüne giriş yap.</p>
             </div>
-            
+            <div class="pw-float-card">
+                <div class="fc-icon blue"><i class="fa-solid fa-wallet"></i></div>
+                <div>
+                    <div style="font-weight:700;color:#fff;">₺12.800</div>
+                    <div style="font-size:11px;">Net bakiye</div>
+                </div>
+            </div>
+            <div class="pw-float-card">
+                <div class="fc-icon purple"><i class="fa-solid fa-bullseye"></i></div>
+                <div>
+                    <div style="font-weight:700;color:#fff;">%73 tamamlandı</div>
+                    <div style="font-size:11px;">Birikim hedefi</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="pw-brand">
+            <div class="pw-logo-icon">
+                <i class="fa-solid fa-coins"></i>
+            </div>
+            <h1>PennyWise</h1>
+            <p>Finansal geleceğini şekillendirmek için ihtiyacın olan her şey tek bir yerde.</p>
+        </div>
+
+        <div class="pw-stats">
+            <div class="pw-stat">
+                <span class="val">₺0</span>
+                <span class="lbl">Gizli Ücret</span>
+            </div>
+            <div class="pw-stat">
+                <span class="val">100%</span>
+                <span class="lbl">Güvenli</span>
+            </div>
+            <div class="pw-stat">
+                <span class="val">7/24</span>
+                <span class="lbl">Erişim</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SAĞ PANEL — FORM -->
+    <div class="pw-right-panel">
+        <div class="pw-form-inner">
+
+            <div class="pw-form-header">
+                <div class="badge-tag">
+                    <i class="fa-solid fa-lock" style="font-size:10px;"></i>
+                    Güvenli Giriş
+                </div>
+                <h2>Hoş Geldin</h2>
+                <p>Geleceğin finansal özgürlüğüne giriş yap.</p>
+            </div>
+
             <section>
                 <form id="account" method="post">
                     <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
-                    
-                    <div class="form-floating mb-3">
-                        <input asp-for="Input.Email" class="form-control bg-dark text-white border-secondary" autocomplete="username" aria-required="true" placeholder="isim@ornek.com" style="border-radius: 12px; background-color: rgba(0, 0, 0, 0.4) !important; border-color: rgba(59, 130, 246, 0.3) !important;" />
-                        <label asp-for="Input.Email" class="text-muted">E-posta Adresi</label>
+
+                    <div class="pw-input-group">
+                        <label asp-for="Input.Email">E-posta Adresi</label>
+                        <div class="pw-input-wrap">
+                            <i class="fa-solid fa-envelope pw-input-icon"></i>
+                            <input asp-for="Input.Email"
+                                   autocomplete="username"
+                                   aria-required="true"
+                                   placeholder="isim@ornek.com" />
+                        </div>
                         <span asp-validation-for="Input.Email" class="text-danger"></span>
                     </div>
-                    
-                    <div class="form-floating mb-3">
-                        <input asp-for="Input.Password" class="form-control bg-dark text-white border-secondary" autocomplete="current-password" aria-required="true" placeholder="şifre" style="border-radius: 12px; background-color: rgba(0, 0, 0, 0.4) !important; border-color: rgba(59, 130, 246, 0.3) !important;" />
-                        <label asp-for="Input.Password" class="text-muted">Şifre</label>
+
+                    <div class="pw-input-group">
+                        <label asp-for="Input.Password">Şifre</label>
+                        <div class="pw-input-wrap">
+                            <i class="fa-solid fa-key pw-input-icon"></i>
+                            <input asp-for="Input.Password"
+                                   autocomplete="current-password"
+                                   aria-required="true"
+                                   placeholder="••••••••" />
+                        </div>
                         <span asp-validation-for="Input.Password" class="text-danger"></span>
                     </div>
-                    
-                    <div class="form-check mb-4">
-                        <input class="form-check-input" asp-for="Input.RememberMe" style="background-color: rgba(0, 0, 0, 0.4); border-color: rgba(59, 130, 246, 0.4);" />
-                        <label asp-for="Input.RememberMe" class="form-check-label text-light small">
-                            Beni Hatırla
+
+                    <div class="pw-form-meta">
+                        <label class="pw-remember">
+                            <input asp-for="Input.RememberMe" type="checkbox" />
+                            <span>Beni Hatırla</span>
                         </label>
+                        <a id="forgot-password" asp-page="./ForgotPassword" class="pw-forgot">
+                            Şifreni mi unuttun?
+                        </a>
                     </div>
-                    
-                    <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-login-neon">Giriş Yap <i class="fa-solid fa-arrow-right ms-2"></i></button>
-                    
-                    <div class="text-center mt-4 pt-3 border-top border-secondary" style="border-color: rgba(255, 255, 255, 0.1) !important;">
-                        <p class="mb-2">
-                            <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" class="link-neon-cyan">Hesabın yok mu? Hemen Kayıt Ol</a>
-                        </p>
-                        <p class="mb-0">
-                            <a id="forgot-password" asp-page="./ForgotPassword" class="link-neon-cyan-muted">Şifreni mi unuttun?</a>
-                        </p>
+
+                    <button id="login-submit" type="submit" class="pw-btn-submit">
+                        Giriş Yap
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+
+                    <div class="pw-register-link">
+                        <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">
+                            Hesabın yok mu? Hemen Kayıt Ol
+                        </a>
                     </div>
                 </form>
             </section>
