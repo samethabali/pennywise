@@ -22,7 +22,7 @@
                 <span>PennyWise</span>
             </a>
             
-            @if (User.Identity?.IsAuthenticated == true && ViewData["HideNavbarLinks"] == null)
+            @if (User.Identity?.IsAuthenticated == true && User.IsInRole("User") && ViewData["HideNavbarLinks"] == null)
             {
                 <div class="px-3 mt-3">
                     @await Component.InvokeAsync("Balance")

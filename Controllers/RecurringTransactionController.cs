@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace PennyWise.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "User")]
     public class RecurringTransactionController : Controller
     {
         private readonly ApplicationDbContext _context;

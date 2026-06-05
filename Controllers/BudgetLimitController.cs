@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace PennyWise.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "User")]
     public class BudgetLimitController : Controller
     {
         private readonly ApplicationDbContext _context;

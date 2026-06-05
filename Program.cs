@@ -74,6 +74,24 @@ using (var scope = app.Services.CreateScope())
             await userManager.AddToRoleAsync(adminUser, "Admin");
         }
     }
+
+    // Rolü bulunmayan mevcut kullanıcıları otomatik olarak "User" rolüne ata
+    try
+    {
+        var allUsers = await userManager.Users.ToListAsync();
+        foreach (var user in allUsers)
+        {
+            var userRoles = await userManager.GetRolesAsync(user);
+            if (!userRoles.Any())
+            {
+                await userManager.AddToRoleAsync(user, "User");
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Otomatik rol eşleştirme hatası: {ex.Message}");
+    }
 }
 
 // Configure the HTTP request pipeline.
