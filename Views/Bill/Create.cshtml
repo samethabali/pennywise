@@ -4,61 +4,341 @@
     ViewData["Title"] = "Yeni Fatura Kaydet";
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-6 col-lg-5">
-        <div class="card shadow-sm">
-            <div class="card-header py-3 bg-transparent">
-                <div class="d-flex align-items-center gap-2">
-                    <i class="fa-solid fa-receipt text-primary fa-lg"></i>
-                    <h5 class="mb-0 fw-bold">Yeni Fatura Ödeme Talimatı</h5>
+<style>
+    .bill-create-page { display: grid; grid-template-columns: 1fr 380px; gap: 28px; max-width: 900px; margin: 0 auto; padding-bottom: 40px; }
+
+    /* Sol Panel - Önizleme */
+    .bill-preview-panel { display: flex; flex-direction: column; gap: 18px; }
+
+    .bill-prev-card {
+        background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 55%, #3b1f6e 100%);
+        border-radius: 24px;
+        padding: 32px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(15,23,42,0.3);
+    }
+
+    .bill-prev-card::before {
+        content: '';
+        position: absolute; top: -80px; right: -80px;
+        width: 220px; height: 220px; border-radius: 50%;
+        background: radial-gradient(circle, rgba(251,191,36,0.15) 0%, transparent 70%);
+    }
+
+    .bill-prev-card::after {
+        content: '';
+        position: absolute; bottom: -60px; left: -60px;
+        width: 180px; height: 180px; border-radius: 50%;
+        background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%);
+    }
+
+    .bpc-top { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; }
+
+    .bpc-badge {
+        padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;
+        background: rgba(251,191,36,0.2); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3);
+        display: flex; align-items: center; gap: 5px;
+    }
+
+    .bpc-logo { font-size: 28px; }
+
+    .bpc-title {
+        position: relative; z-index: 1;
+        font-size: 1.3rem; font-weight: 800;
+        margin-bottom: 4px;
+        min-height: 32px;
+        background: linear-gradient(135deg, #ffffff, #fbbf24);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .bpc-amount {
+        position: relative; z-index: 1;
+        font-size: 2.8rem; font-weight: 800;
+        line-height: 1; margin: 16px 0;
+        background: linear-gradient(135deg, #ffffff, #93c5fd);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .bpc-footer {
+        position: relative; z-index: 1;
+        display: flex; gap: 20px;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        padding-top: 18px; margin-top: 4px;
+    }
+
+    .bpc-field .fl { font-size: 10px; text-transform: uppercase; color: rgba(255,255,255,0.4); letter-spacing: 0.5px; margin-bottom: 3px; }
+    .bpc-field .fv { font-size: 0.88rem; font-weight: 600; color: rgba(255,255,255,0.85); }
+
+    /* Bilgi kutuları */
+    .bill-info-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 18px 20px;
+    }
+
+    .bib-title {
+        font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+        color: #94a3b8; letter-spacing: 0.5px;
+        margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
+    }
+
+    .bib-title i { color: #f59e0b; }
+
+    .bib-tip { display: flex; gap: 8px; margin-bottom: 8px; }
+    .bib-tip:last-child { margin-bottom: 0; }
+    .bib-tip .dot { width: 5px; height: 5px; border-radius: 50%; background: #f59e0b; flex-shrink: 0; margin-top: 7px; }
+    .bib-tip p { font-size: 0.79rem; color: #64748b; margin: 0; line-height: 1.5; }
+
+    /* Sağ Panel - Form */
+    .bill-form-panel {
+        background: #ffffff;
+        border: 1px solid #e8edf5;
+        border-radius: 24px;
+        box-shadow: 0 4px 24px rgba(15,23,42,0.06);
+        overflow: hidden;
+        align-self: start;
+    }
+
+    .bill-form-header {
+        padding: 22px 26px 18px;
+        border-bottom: 1px solid #f1f5f9;
+        background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+    }
+
+    .bill-form-header h2 {
+        font-size: 1.1rem; font-weight: 800; color: #0f172a;
+        margin: 0 0 4px; display: flex; align-items: center; gap: 10px;
+    }
+
+    .bill-form-header h2 .hico {
+        width: 32px; height: 32px; border-radius: 8px;
+        background: linear-gradient(135deg, #f59e0b, #ef4444);
+        display: flex; align-items: center; justify-content: center;
+        color: white; font-size: 13px; flex-shrink: 0;
+    }
+
+    .bill-form-header p { font-size: 0.78rem; color: #94a3b8; margin: 0; padding-left: 42px; }
+
+    .bill-form-body { padding: 22px 26px 20px; }
+
+    .f-field { margin-bottom: 18px; }
+
+    .f-lbl {
+        display: flex; align-items: center; gap: 6px;
+        font-size: 0.77rem; font-weight: 700; text-transform: uppercase;
+        letter-spacing: 0.3px; color: #475569; margin-bottom: 7px;
+    }
+
+    .f-lbl i { color: #f59e0b; font-size: 11px; }
+
+    .f-rel { position: relative; }
+    .f-i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 13px; pointer-events: none; }
+    .f-s { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 12px; font-weight: 700; color: #f59e0b; pointer-events: none; }
+
+    .f-ctrl {
+        width: 100%; padding: 12px 36px 12px 36px;
+        border: 1.5px solid #e8edf5; border-radius: 10px;
+        font-size: 0.88rem; color: #0f172a; background: #fafbfc;
+        outline: none; transition: all 0.2s; box-sizing: border-box;
+    }
+
+    .f-ctrl:focus { border-color: #f59e0b; background: #fff; box-shadow: 0 0 0 3px rgba(245,158,11,0.12); }
+    .f-ctrl::placeholder { color: #cbd5e1; }
+
+    .f-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    .f-sep { height: 1px; background: #f1f5f9; margin: 20px 0 18px; }
+
+    .f-btns { display: flex; flex-direction: column; gap: 10px; }
+
+    .btn-bill-save {
+        width: 100%; padding: 13px; border: none; border-radius: 12px;
+        background: linear-gradient(135deg, #f59e0b, #ef4444);
+        color: white; font-size: 0.9rem; font-weight: 700;
+        cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+        box-shadow: 0 4px 14px rgba(245,158,11,0.4); transition: all 0.2s;
+    }
+
+    .btn-bill-save:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(245,158,11,0.5); }
+
+    .btn-bill-cancel {
+        width: 100%; padding: 11px; border: 1.5px solid #e2e8f0; border-radius: 12px;
+        background: transparent; color: #64748b; font-size: 0.85rem; font-weight: 600;
+        text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 7px;
+        transition: all 0.2s;
+    }
+
+    .btn-bill-cancel:hover { background: #f8fafc; color: #374151; }
+
+    .v-err { color: #ef4444 !important; font-size: 0.75rem; margin-top: 4px; display: block; }
+
+    @@media (max-width: 860px) {
+        .bill-create-page { grid-template-columns: 1fr; }
+        .bill-preview-panel { order: 2; }
+        .bill-form-panel { order: 1; }
+    }
+    @@media (max-width: 480px) { .f-row-2 { grid-template-columns: 1fr; } }
+</style>
+
+<div class="bill-create-page">
+
+    <!-- SOL: ÖNİZLEME -->
+    <div class="bill-preview-panel">
+        <div class="bill-prev-card">
+            <div class="bpc-top">
+                <div class="bpc-badge"><i class="fa-solid fa-clock"></i> Ödeme Bekliyor</div>
+                <div class="bpc-logo">🧾</div>
+            </div>
+            <div class="bpc-title" id="bp-title">Fatura Adı Giriniz</div>
+            <div class="bpc-amount" id="bp-amount">₺0,00</div>
+            <div class="bpc-footer">
+                <div class="bpc-field">
+                    <div class="fl">Son Ödeme</div>
+                    <div class="fv" id="bp-date">—</div>
+                </div>
+                <div class="bpc-field">
+                    <div class="fl">Kalan Süre</div>
+                    <div class="fv" id="bp-remaining">—</div>
                 </div>
             </div>
-            <div class="card-body">
-                <p class="text-muted small mb-4">Gelecekte ödeyeceğiniz bir harcama veya periyodik fatura için takip ve hatırlatıcı tanımlayın.</p>
+        </div>
 
-                <form asp-action="Create" method="post">
-                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
-
-                    <!-- Fatura Kategorisi Gizli Model Parametresi -->
-                    <input type="hidden" asp-for="CategoryId" />
-
-                    <!-- Başlık -->
-                    <div class="mb-3">
-                        <label asp-for="Title" class="form-label text-dark fw-semibold">Fatura / Kurum Adı</label>
-                        <input asp-for="Title" class="form-control" placeholder="Örn: Elektrik Faturası, Türk Telekom, Kira" required />
-                        <span asp-validation-for="Title" class="text-danger small"></span>
-                    </div>
-
-                    <!-- Tutar ve Vade Tarihi -->
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <label asp-for="Amount" class="form-label text-dark fw-semibold">Tutar</label>
-                            <div class="input-group">
-                                <input asp-for="Amount" type="number" step="0.01" class="form-control" placeholder="0.00" required />
-                                <span class="input-group-text bg-light border-start-0">₺</span>
-                            </div>
-                            <span asp-validation-for="Amount" class="text-danger small"></span>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label asp-for="DueDate" class="form-label text-dark fw-semibold">Son Ödeme Tarihi</label>
-                            <input asp-for="DueDate" class="form-control" type="date" required />
-                            <span asp-validation-for="DueDate" class="text-danger small"></span>
-                        </div>
-                    </div>
-
-                    <!-- Butonlar -->
-                    <div class="d-flex gap-2 justify-content-end border-top pt-3">
-                        <a asp-action="Index" class="btn btn-outline-primary px-3">İptal</a>
-                        <button type="submit" class="btn btn-primary px-4 fw-semibold">
-                            <i class="fa-solid fa-check-double"></i> Faturayı Kaydet
-                        </button>
-                    </div>
-                </form>
+        <div class="bill-info-box">
+            <div class="bib-title"><i class="fa-solid fa-lightbulb"></i> Faturalama İpuçları</div>
+            <div class="bib-tip">
+                <div class="dot"></div>
+                <p>Faturaları öde butonuna bastığınızda, otomatik olarak gider kaydı oluşturulur.</p>
+            </div>
+            <div class="bib-tip">
+                <div class="dot"></div>
+                <p>Vadesi geçmiş faturalar kırmızı olarak vurgulanır ve uyarı bandı gösterilir.</p>
+            </div>
+            <div class="bib-tip">
+                <div class="dot"></div>
+                <p>Aylık tekrarlayan ödemeler için "Abonelikler" bölümünü kullanın.</p>
             </div>
         </div>
     </div>
+
+    <!-- SAĞ: FORM -->
+    <div class="bill-form-panel">
+        <div class="bill-form-header">
+            <h2>
+                <span class="hico"><i class="fa-solid fa-receipt"></i></span>
+                Yeni Fatura Kaydet
+            </h2>
+            <p>Yaklaşan ödemenizi sisteme tanımlayın.</p>
+        </div>
+
+        <div class="bill-form-body">
+            <form asp-action="Create" method="post">
+                <div asp-validation-summary="ModelOnly" class="v-err mb-3" role="alert"></div>
+                <input type="hidden" asp-for="CategoryId" />
+
+                <!-- Fatura Adı -->
+                <div class="f-field">
+                    <label class="f-lbl" asp-for="Title">
+                        <i class="fa-solid fa-building"></i> Fatura / Kurum Adı
+                    </label>
+                    <div class="f-rel">
+                        <i class="fa-solid fa-file-invoice f-i"></i>
+                        <input asp-for="Title" class="f-ctrl" id="title-input"
+                               placeholder="Örn: Elektrik, Türk Telekom, Kira" required />
+                    </div>
+                    <span asp-validation-for="Title" class="v-err"></span>
+                </div>
+
+                <!-- Tutar + Tarih -->
+                <div class="f-row-2">
+                    <div class="f-field">
+                        <label class="f-lbl" asp-for="Amount">
+                            <i class="fa-solid fa-coins"></i> Tutar
+                        </label>
+                        <div class="f-rel">
+                            <i class="fa-solid fa-coins f-i"></i>
+                            <input asp-for="Amount" type="number" step="0.01"
+                                   class="f-ctrl" id="amount-input"
+                                   placeholder="0.00" required style="padding-right:32px;" />
+                            <span class="f-s">₺</span>
+                        </div>
+                        <span asp-validation-for="Amount" class="v-err"></span>
+                    </div>
+
+                    <div class="f-field">
+                        <label class="f-lbl" asp-for="DueDate">
+                            <i class="fa-regular fa-calendar-xmark"></i> Son Ödeme Tarihi
+                        </label>
+                        <div class="f-rel">
+                            <i class="fa-regular fa-calendar f-i"></i>
+                            <input asp-for="DueDate" type="date"
+                                   class="f-ctrl" id="date-input" required />
+                        </div>
+                        <span asp-validation-for="DueDate" class="v-err"></span>
+                    </div>
+                </div>
+
+                <div class="f-sep"></div>
+
+                <div class="f-btns">
+                    <button type="submit" class="btn-bill-save">
+                        <i class="fa-solid fa-floppy-disk"></i> Faturayı Kaydet
+                    </button>
+                    <a asp-action="Index" class="btn-bill-cancel">
+                        <i class="fa-solid fa-xmark"></i> İptal, Geri Dön
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const titleInput  = document.getElementById("title-input");
+        const amountInput = document.getElementById("amount-input");
+        const dateInput   = document.getElementById("date-input");
+
+        const bpTitle     = document.getElementById("bp-title");
+        const bpAmount    = document.getElementById("bp-amount");
+        const bpDate      = document.getElementById("bp-date");
+        const bpRemaining = document.getElementById("bp-remaining");
+
+        function updatePreview() {
+            bpTitle.textContent = titleInput.value.trim() || "Fatura Adı Giriniz";
+
+            const amt = parseFloat(amountInput.value) || 0;
+            bpAmount.textContent = amt.toLocaleString("tr-TR", { style: "currency", currency: "TRY" });
+
+            if (dateInput.value) {
+                const d = new Date(dateInput.value);
+                bpDate.textContent = d.toLocaleDateString("tr-TR", { day: "2-digit", month: "long", year: "numeric" });
+
+                const diffMs   = d - new Date();
+                const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+                if (diffDays < 0)       bpRemaining.textContent = Math.abs(diffDays) + " gün gecikti!";
+                else if (diffDays === 0) bpRemaining.textContent = "Bugün son gün!";
+                else if (diffDays === 1) bpRemaining.textContent = "Yarın son gün!";
+                else                    bpRemaining.textContent = diffDays + " gün kaldı";
+            } else {
+                bpDate.textContent = "—";
+                bpRemaining.textContent = "—";
+            }
+        }
+
+        titleInput.addEventListener("input", updatePreview);
+        amountInput.addEventListener("input", updatePreview);
+        dateInput.addEventListener("change", updatePreview);
+        updatePreview();
+    });
+</script>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

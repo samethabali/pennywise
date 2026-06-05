@@ -2,193 +2,391 @@
 
 @{
     ViewData["Title"] = "Fatura Takip Merkezi";
-    
-    var unpaidCount = Model.Count(b => !b.IsPaid);
-    var unpaidTotal = Model.Where(b => !b.IsPaid).Sum(b => b.Amount);
-    var paidTotal = Model.Where(b => b.IsPaid).Sum(b => b.Amount);
+    var now = DateTime.UtcNow;
+    var unpaid    = Model.Where(b => !b.IsPaid).ToList();
+    var paid      = Model.Where(b => b.IsPaid).ToList();
+    var overdue   = unpaid.Where(b => b.DueDate < now).ToList();
+    var upcoming  = unpaid.Where(b => b.DueDate >= now).OrderBy(b => b.DueDate).ToList();
+    var unpaidTotal = unpaid.Sum(b => b.Amount);
+    var overdueTotal = overdue.Sum(b => b.Amount);
+    var paidTotal = paid.Sum(b => b.Amount);
 }
 
-<div class="container-fluid px-0">
-    <!-- Üst Başlık ve Yeni Fatura Tanımlama -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom gap-3">
-        <div>
-            <span class="text-muted text-uppercase fw-bold tracking-wider small" style="font-size: 0.75rem; letter-spacing: 0.05em;">Ödeme Hatırlatıcıları</span>
-            <h1 class="h2 mb-1">Faturalar ve Ödemeler</h1>
-            <p class="text-muted mb-0 small">Gelecekteki periyodik veya tek seferlik fatura ödemelerinizi planlayın ve ödediğinizde gider olarak işleyin.</p>
-        </div>
-        <div>
-            <a asp-action="Create" class="btn btn-primary">
-                <i class="fa-solid fa-plus"></i> Yeni Fatura Tanımla
-            </a>
+<style>
+    /* ── STAT KARTLARI ── */
+    .bill-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+
+    .bill-stat-card {
+        background: #ffffff;
+        border: 1px solid #e8edf5;
+        border-radius: 16px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        box-shadow: 0 2px 12px rgba(15,23,42,0.04);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .bill-stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0;
+        width: 4px; height: 100%;
+    }
+
+    .bill-stat-card.danger::before  { background: #ef4444; }
+    .bill-stat-card.warning::before { background: #f59e0b; }
+    .bill-stat-card.success::before { background: #10b981; }
+    .bill-stat-card.info::before    { background: #3b82f6; }
+
+    .bsc-icon {
+        width: 44px; height: 44px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 18px; flex-shrink: 0;
+    }
+
+    .bsc-icon.danger  { background: #fef2f2; color: #ef4444; }
+    .bsc-icon.warning { background: #fffbeb; color: #f59e0b; }
+    .bsc-icon.success { background: #f0fdf4; color: #10b981; }
+    .bsc-icon.info    { background: #eff6ff; color: #3b82f6; }
+
+    .bsc-content .label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: #94a3b8; margin-bottom: 4px; }
+    .bsc-content .value { font-size: 1.25rem; font-weight: 800; color: #0f172a; }
+
+    /* ── FATURA KARTLARı ── */
+    .bill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+    .bill-panel {
+        background: #ffffff;
+        border: 1px solid #e8edf5;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(15,23,42,0.05);
+        overflow: hidden;
+    }
+
+    .bill-panel-header {
+        padding: 18px 22px;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .bill-panel-header .title {
+        font-size: 0.88rem; font-weight: 800; color: #0f172a;
+        display: flex; align-items: center; gap: 8px;
+    }
+
+    .bill-panel-header .title i { font-size: 14px; }
+
+    .bph-badge {
+        padding: 3px 10px; border-radius: 20px;
+        font-size: 11px; font-weight: 700;
+    }
+
+    .bph-badge.red    { background: #fef2f2; color: #ef4444; }
+    .bph-badge.green  { background: #f0fdf4; color: #10b981; }
+    .bph-badge.orange { background: #fffbeb; color: #f59e0b; }
+
+    /* Fatura satırı */
+    .bill-item {
+        padding: 14px 22px;
+        border-bottom: 1px solid #f8fafc;
+        display: flex; align-items: center; gap: 12px;
+        transition: background 0.15s;
+    }
+
+    .bill-item:hover { background: #fafbff; }
+    .bill-item:last-child { border-bottom: none; }
+
+    .bill-item.overdue-row { background: #fff8f8; border-left: 3px solid #ef4444; }
+    .bill-item.overdue-row:hover { background: #fff0f0; }
+
+    .bill-icon {
+        width: 38px; height: 38px; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 14px; flex-shrink: 0;
+    }
+
+    .bill-icon.pending  { background: #fef3c7; color: #d97706; }
+    .bill-icon.overdue  { background: #fee2e2; color: #dc2626; }
+    .bill-icon.paid-ico { background: #d1fae5; color: #059669; }
+
+    .bill-info { flex: 1; min-width: 0; }
+    .bill-info .bill-name {
+        font-size: 0.88rem; font-weight: 700; color: #0f172a;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .bill-info .bill-meta { font-size: 0.75rem; color: #94a3b8; margin-top: 2px; display: flex; align-items: center; gap: 6px; }
+
+    /* Durum Badge */
+    .status-chip {
+        padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; white-space: nowrap;
+    }
+
+    .status-chip.overdue  { background: #fee2e2; color: #dc2626; }
+    .status-chip.urgent   { background: #fef3c7; color: #d97706; }
+    .status-chip.normal   { background: #eff6ff; color: #3b82f6; }
+    .status-chip.paid-chip { background: #d1fae5; color: #059669; }
+
+    /* Tutar */
+    .bill-amount { font-size: 0.92rem; font-weight: 800; white-space: nowrap; }
+    .bill-amount.red   { color: #ef4444; }
+    .bill-amount.green { color: #10b981; }
+    .bill-amount.muted { color: #94a3b8; text-decoration: line-through; }
+
+    /* Aksiyon butonları */
+    .bill-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+    .btn-pay {
+        padding: 6px 12px; border: none; border-radius: 8px;
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white; font-size: 11px; font-weight: 700;
+        cursor: pointer; display: flex; align-items: center; gap: 4px;
+        transition: all 0.2s; white-space: nowrap;
+        box-shadow: 0 2px 8px rgba(16,185,129,0.3);
+    }
+
+    .btn-pay:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(16,185,129,0.4); }
+
+    .btn-del {
+        padding: 6px 10px; border: 1.5px solid #fee2e2; border-radius: 8px;
+        background: transparent; color: #ef4444; font-size: 11px;
+        cursor: pointer; transition: all 0.2s;
+    }
+
+    .btn-del:hover { background: #fef2f2; }
+
+    /* Boş durum */
+    .bill-empty {
+        padding: 48px 24px; text-align: center;
+    }
+
+    .bill-empty i { font-size: 3rem; margin-bottom: 12px; display: block; }
+
+    /* Sayfa başlık */
+    .bill-page-header {
+        display: flex; align-items: flex-start; justify-content: space-between;
+        margin-bottom: 24px;
+    }
+
+    .bill-page-header h1 { font-size: 1.6rem; font-weight: 800; color: #0f172a; margin: 0 0 4px; }
+    .bill-page-header p  { font-size: 0.85rem; color: #64748b; margin: 0; }
+
+    .btn-new-bill {
+        padding: 11px 22px; border: none; border-radius: 12px;
+        background: linear-gradient(135deg, #3b82f6, #6366f1);
+        color: white; font-size: 0.88rem; font-weight: 700;
+        text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+        box-shadow: 0 4px 14px rgba(59,130,246,0.35); transition: all 0.2s;
+        white-space: nowrap;
+    }
+
+    .btn-new-bill:hover { transform: translateY(-2px); color: white; box-shadow: 0 8px 24px rgba(59,130,246,0.45); }
+
+    /* Gecikmiş uyarı bandı */
+    .overdue-banner {
+        background: linear-gradient(135deg, #fef2f2, #fff8f8);
+        border: 1px solid #fecaca;
+        border-radius: 14px;
+        padding: 14px 20px;
+        margin-bottom: 20px;
+        display: flex; align-items: center; gap: 12px;
+    }
+
+    .overdue-banner i { color: #dc2626; font-size: 20px; flex-shrink: 0; }
+    .overdue-banner .ob-text { font-size: 0.85rem; color: #7f1d1d; }
+    .overdue-banner .ob-text strong { color: #dc2626; }
+
+    @@media (max-width: 900px) { .bill-grid { grid-template-columns: 1fr; } }
+    @@media (max-width: 700px) { .bill-stats { grid-template-columns: 1fr 1fr; } }
+    @@media (max-width: 480px) { .bill-stats { grid-template-columns: 1fr; } }
+</style>
+
+<div class="bill-page-header">
+    <div>
+        <h1>📋 Fatura Takip Merkezi</h1>
+        <p>Tüm ödemelerinizi planlayın, gecikmeleri anında tespit edin.</p>
+    </div>
+    <a asp-action="Create" class="btn-new-bill">
+        <i class="fa-solid fa-plus"></i> Yeni Fatura Tanımla
+    </a>
+</div>
+
+<!-- İstatistik Kartları -->
+<div class="bill-stats">
+    <div class="bill-stat-card danger">
+        <div class="bsc-icon danger"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div class="bsc-content">
+            <div class="label">Gecikmiş</div>
+            <div class="value">@overdue.Count Fatura</div>
         </div>
     </div>
-
-    <!-- Fatura Özet Metrikleri -->
-    <div class="row g-3 mb-4">
-        <!-- Bekleyen Adet -->
-        <div class="col-md-4">
-            <div class="card p-3 border-start border-4 border-danger">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="text-muted small fw-semibold uppercase tracking-wider mb-1" style="font-size: 0.75rem;">Bekleyen Fatura Adedi</div>
-                        <div class="h3 mb-0 text-danger fw-bold">@unpaidCount Aktif</div>
-                    </div>
-                    <div class="p-2 bg-danger-subtle text-danger rounded-circle" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
-                        <i class="fa-solid fa-bell"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Bekleyen Tutar -->
-        <div class="col-md-4">
-            <div class="card p-3 border-start border-4 border-warning">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="text-muted small fw-semibold uppercase tracking-wider mb-1" style="font-size: 0.75rem;">Toplam Bekleyen Tutar</div>
-                        <div class="h3 mb-0 text-warning fw-bold">@unpaidTotal.ToString("C2")</div>
-                    </div>
-                    <div class="p-2 bg-warning-subtle text-warning rounded-circle" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
-                        <i class="fa-solid fa-wallet"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Ödenen Toplam -->
-        <div class="col-md-4">
-            <div class="card p-3 border-start border-4 border-success">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="text-muted small fw-semibold uppercase tracking-wider mb-1" style="font-size: 0.75rem;">Geçmişte Ödenen Toplam</div>
-                        <div class="h3 mb-0 text-success fw-bold">@paidTotal.ToString("C2")</div>
-                    </div>
-                    <div class="p-2 bg-success-subtle text-success rounded-circle" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
-                        <i class="fa-solid fa-check-double"></i>
-                    </div>
-                </div>
-            </div>
+    <div class="bill-stat-card warning">
+        <div class="bsc-icon warning"><i class="fa-solid fa-clock"></i></div>
+        <div class="bsc-content">
+            <div class="label">Bekleyen Borç</div>
+            <div class="value">@unpaidTotal.ToString("C0")</div>
         </div>
     </div>
+    <div class="bill-stat-card success">
+        <div class="bsc-icon success"><i class="fa-solid fa-check-double"></i></div>
+        <div class="bsc-content">
+            <div class="label">Ödenen Toplam</div>
+            <div class="value">@paidTotal.ToString("C0")</div>
+        </div>
+    </div>
+    <div class="bill-stat-card info">
+        <div class="bsc-icon info"><i class="fa-solid fa-receipt"></i></div>
+        <div class="bsc-content">
+            <div class="label">Toplam Fatura</div>
+            <div class="value">@Model.Count() Kayıt</div>
+        </div>
+    </div>
+</div>
 
-    <!-- İki Kolonlu Grid Düzeni -->
-    <div class="row g-4">
-        <!-- Sol Kolon: Ödenmemiş Faturalar -->
-        <div class="col-lg-7">
-            <div class="card shadow-sm h-100">
-                <div class="card-header py-3 bg-transparent d-flex justify-content-between align-items-center">
-                    <span class="fw-bold text-dark"><i class="fa-solid fa-receipt text-danger me-2"></i>Ödeme Bekleyenler</span>
-                    <span class="badge bg-danger rounded-pill">@unpaidCount Fatura</span>
-                </div>
-                <div class="card-body p-0">
-                    @if (Model.Any(b => !b.IsPaid))
-                    {
-                        <div class="table-responsive">
-                            <table class="table align-middle">
-                                <thead>
-                                    <tr>
-                                        <th>Fatura Adı</th>
-                                        <th>Son Gün</th>
-                                        <th>Tutar</th>
-                                        <th class="text-end" style="width: 140px;">İşlemler</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var bill in Model.Where(b => !b.IsPaid))
-                                    {
-                                        var daysRemaining = (bill.DueDate - DateTime.UtcNow).Days;
-                                        <tr>
-                                            <td class="fw-bold text-dark">@bill.Title</td>
-                                            <td>
-                                                <span class="small @(daysRemaining <= 3 ? "text-danger fw-bold" : "text-muted")">
-                                                    @bill.DueDate.ToString("dd.MM.yyyy")
-                                                    @if (daysRemaining >= 0 && daysRemaining <= 3)
-                                                    {
-                                                        <text> (@daysRemaining gün!)</text>
-                                                    }
-                                                </span>
-                                            </td>
-                                            <td class="fw-bold text-danger">@bill.Amount.ToString("C2")</td>
-                                            <td class="text-end">
-                                                <div class="d-flex justify-content-end gap-1">
-                                                    <form asp-action="Pay" asp-route-id="@bill.Id" method="post" class="d-inline">
-                                                        <button type="submit" class="btn btn-sm btn-outline-success py-1 px-3">
-                                                            <i class="fa-solid fa-credit-card me-1"></i> Öde
-                                                        </button>
-                                                    </form>
-                                                    <form asp-action="Delete" asp-route-id="@bill.Id" method="post" class="d-inline" onsubmit="return confirm('Bu faturayı silmek istediğinizden emin misiniz?');">
-                                                        <button type="submit" class="btn btn-sm btn-outline-danger py-1 px-2" title="Sil">
-                                                            <i class="fa-solid fa-trash-can"></i>
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="text-center text-muted py-5">
-                            <i class="fa-solid fa-circle-check fa-4x text-success mb-3 opacity-75"></i>
-                            <h5 class="fw-bold text-dark">Ödeme Bekleyen Faturanız Yok</h5>
-                            <p class="small text-muted mb-0">Harika! Bu döneme ait ödenmemiş hiçbir faturanız bulunmuyor.</p>
-                        </div>
-                    }
-                </div>
+<!-- Gecikmiş Uyarı Bandı -->
+@if (overdue.Any())
+{
+    <div class="overdue-banner">
+        <i class="fa-solid fa-siren-on"></i>
+        <div class="ob-text">
+            <strong>@overdue.Count adet faturanızın vadesi geçmiş!</strong>
+            Toplam gecikmiş tutar: <strong>@overdueTotal.ToString("C2")</strong> — Hemen öde ve geç ödeme cezasından kaçın.
+        </div>
+    </div>
+}
+
+<!-- Fatura Grid -->
+<div class="bill-grid">
+
+    <!-- SOL: ÖDENMEMIŞ -->
+    <div class="bill-panel">
+        <div class="bill-panel-header">
+            <div class="title">
+                <i class="fa-solid fa-receipt" style="color:#f59e0b;"></i>
+                Ödeme Bekleyenler
+            </div>
+            <div style="display:flex; gap:6px;">
+                @if (overdue.Any())
+                {
+                    <span class="bph-badge red">@overdue.Count Gecikmiş</span>
+                }
+                <span class="bph-badge orange">@upcoming.Count Yaklaşan</span>
             </div>
         </div>
 
-        <!-- Sağ Kolon: Ödenmiş Faturalar -->
-        <div class="col-lg-5">
-            <div class="card shadow-sm h-100">
-                <div class="card-header py-3 bg-transparent d-flex justify-content-between align-items-center">
-                    <span class="fw-bold text-dark"><i class="fa-solid fa-circle-check text-success me-2"></i>Ödenenler Geçmişi</span>
-                    <span class="badge bg-success rounded-pill">@Model.Count(b => b.IsPaid) Ödendi</span>
-                </div>
-                <div class="card-body p-0">
-                    @if (Model.Any(b => b.IsPaid))
-                    {
-                        <div class="table-responsive">
-                            <table class="table align-middle">
-                                <thead>
-                                    <tr>
-                                        <th>Fatura Adı</th>
-                                        <th>Tutar</th>
-                                        <th class="text-end" style="width: 80px;">Sil</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var bill in Model.Where(b => b.IsPaid))
-                                    {
-                                        <tr>
-                                            <td class="text-muted text-decoration-line-through">@bill.Title</td>
-                                            <td class="fw-bold text-success">@bill.Amount.ToString("C2")</td>
-                                            <td class="text-end">
-                                                <form asp-action="Delete" asp-route-id="@bill.Id" method="post" class="d-inline" onsubmit="return confirm('Bu faturayı geçmişten silmek istediğinizden emin misiniz?');">
-                                                    <button type="submit" class="btn btn-sm btn-link text-danger p-0 border-0" title="Sil">
-                                                        <i class="fa-solid fa-trash-can"></i>
-                                                    </button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
+        @if (unpaid.Any())
+        {
+            <!-- Gecikmiş faturalar önce -->
+            @foreach (var bill in overdue)
+            {
+                var daysLate = (int)(now - bill.DueDate).TotalDays;
+                <div class="bill-item overdue-row">
+                    <div class="bill-icon overdue"><i class="fa-solid fa-circle-exclamation"></i></div>
+                    <div class="bill-info">
+                        <div class="bill-name">@bill.Title</div>
+                        <div class="bill-meta">
+                            <i class="fa-regular fa-calendar"></i>
+                            @bill.DueDate.ToString("dd.MM.yyyy")
+                            <span class="status-chip overdue">@daysLate gün gecikti!</span>
                         </div>
-                    }
-                    else
-                    {
-                        <div class="text-center text-muted py-5">
-                            <i class="fa-solid fa-receipt fa-4x text-muted mb-3 opacity-50"></i>
-                            <h5 class="fw-bold text-dark">Geçmiş Kaydı Yok</h5>
-                            <p class="small text-muted mb-0">Henüz geçmişe ait bir ödenmiş fatura kaydı bulunmuyor.</p>
-                        </div>
-                    }
+                    </div>
+                    <div class="bill-amount red">@bill.Amount.ToString("C2")</div>
+                    <div class="bill-actions">
+                        <form asp-action="Pay" asp-route-id="@bill.Id" method="post">
+                            <button type="submit" class="btn-pay">
+                                <i class="fa-solid fa-credit-card"></i> Öde
+                            </button>
+                        </form>
+                        <form asp-action="Delete" asp-route-id="@bill.Id" method="post"
+                              onsubmit="return confirm('Bu faturayı silmek istediğinizden emin misiniz?');">
+                            <button type="submit" class="btn-del"><i class="fa-solid fa-trash"></i></button>
+                        </form>
+                    </div>
                 </div>
+            }
+            <!-- Yaklaşan faturalar -->
+            @foreach (var bill in upcoming)
+            {
+                var daysLeft = (int)(bill.DueDate - now).TotalDays;
+                var chipClass = daysLeft <= 3 ? "urgent" : "normal";
+                var chipText  = daysLeft == 0 ? "Bugün!" : daysLeft == 1 ? "Yarın!" : $"{daysLeft} gün kaldı";
+                <div class="bill-item">
+                    <div class="bill-icon pending"><i class="fa-solid fa-hourglass-half"></i></div>
+                    <div class="bill-info">
+                        <div class="bill-name">@bill.Title</div>
+                        <div class="bill-meta">
+                            <i class="fa-regular fa-calendar"></i>
+                            @bill.DueDate.ToString("dd.MM.yyyy")
+                            <span class="status-chip @chipClass">@chipText</span>
+                        </div>
+                    </div>
+                    <div class="bill-amount red">@bill.Amount.ToString("C2")</div>
+                    <div class="bill-actions">
+                        <form asp-action="Pay" asp-route-id="@bill.Id" method="post">
+                            <button type="submit" class="btn-pay">
+                                <i class="fa-solid fa-credit-card"></i> Öde
+                            </button>
+                        </form>
+                        <form asp-action="Delete" asp-route-id="@bill.Id" method="post"
+                              onsubmit="return confirm('Bu faturayı silmek istediğinizden emin misiniz?');">
+                            <button type="submit" class="btn-del"><i class="fa-solid fa-trash"></i></button>
+                        </form>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="bill-empty">
+                <i class="fa-solid fa-circle-check" style="color:#10b981;opacity:0.7;"></i>
+                <div style="font-weight:700;color:#0f172a;margin-bottom:4px;">Tüm faturalar ödendi!</div>
+                <div style="font-size:0.82rem;color:#94a3b8;">Bekleyen ödemeniz bulunmuyor.</div>
             </div>
+        }
+    </div>
+
+    <!-- SAĞ: ÖDENMİŞ -->
+    <div class="bill-panel">
+        <div class="bill-panel-header">
+            <div class="title">
+                <i class="fa-solid fa-circle-check" style="color:#10b981;"></i>
+                Ödeme Geçmişi
+            </div>
+            <span class="bph-badge green">@paid.Count Ödendi</span>
         </div>
+
+        @if (paid.Any())
+        {
+            @foreach (var bill in paid)
+            {
+                <div class="bill-item">
+                    <div class="bill-icon paid-ico"><i class="fa-solid fa-check"></i></div>
+                    <div class="bill-info">
+                        <div class="bill-name" style="color:#94a3b8;text-decoration:line-through;">@bill.Title</div>
+                        <div class="bill-meta">
+                            <span class="status-chip paid-chip">Ödendi</span>
+                        </div>
+                    </div>
+                    <div class="bill-amount green">@bill.Amount.ToString("C2")</div>
+                    <div class="bill-actions">
+                        <form asp-action="Delete" asp-route-id="@bill.Id" method="post"
+                              onsubmit="return confirm('Bu faturayı geçmişten silmek istediğinizden emin misiniz?');">
+                            <button type="submit" class="btn-del"><i class="fa-solid fa-trash"></i></button>
+                        </form>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="bill-empty">
+                <i class="fa-solid fa-receipt" style="color:#94a3b8;opacity:0.5;"></i>
+                <div style="font-weight:700;color:#0f172a;margin-bottom:4px;">Geçmiş Kaydı Yok</div>
+                <div style="font-size:0.82rem;color:#94a3b8;">Henüz ödenmiş fatura bulunmuyor.</div>
+            </div>
+        }
     </div>
 </div>
