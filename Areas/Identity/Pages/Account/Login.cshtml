@@ -7,10 +7,15 @@
 }
 
 <style>
+    /* Layout'un main-content padding'ini sıfırla */
+    .main-content {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    .main-viewport {
+        overflow: hidden !important;
+    }
     html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
         overflow: hidden;
         font-family: 'Inter', 'Segoe UI', sans-serif;
     }
@@ -20,6 +25,10 @@
         height: 100vh;
         width: 100vw;
         background: #0f172a;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 9999;
     }
 
     /* ===== SOL PANEL ===== */
