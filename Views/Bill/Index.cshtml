@@ -1,29 +1,84 @@
 @model IEnumerable<PennyWise.Models.Bill>
 
 @{
-    ViewData["Title"] = "Gelecek Faturalarınız";
+    ViewData["Title"] = "Fatura Takip Merkezi";
+    
+    var unpaidCount = Model.Count(b => !b.IsPaid);
+    var unpaidTotal = Model.Where(b => !b.IsPaid).Sum(b => b.Amount);
+    var paidTotal = Model.Where(b => b.IsPaid).Sum(b => b.Amount);
 }
 
-<div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+<div class="container-fluid px-0">
+    <!-- Üst Başlık ve Yeni Fatura Tanımlama -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom gap-3">
         <div>
-            <h1 class="h2 mb-0">Gelecek Faturalarınız</h1>
-            <p class="text-muted mb-0">Yaklaşan ödemelerinizi takip edin ve ödendiklerinde gider olarak işaretleyin.</p>
+            <span class="text-muted text-uppercase fw-bold tracking-wider small" style="font-size: 0.75rem; letter-spacing: 0.05em;">Ödeme Hatırlatıcıları</span>
+            <h1 class="h2 mb-1">Faturalar ve Ödemeler</h1>
+            <p class="text-muted mb-0 small">Gelecekteki periyodik veya tek seferlik fatura ödemelerinizi planlayın ve ödediğinizde gider olarak işleyin.</p>
         </div>
         <div>
-            <a asp-action="Create" class="btn btn-primary fw-semibold">
-                <i class="fa-solid fa-plus me-2"></i>Yeni Fatura Tanımla
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fa-solid fa-plus"></i> Yeni Fatura Tanımla
             </a>
         </div>
     </div>
 
+    <!-- Fatura Özet Metrikleri -->
+    <div class="row g-3 mb-4">
+        <!-- Bekleyen Adet -->
+        <div class="col-md-4">
+            <div class="card p-3 border-start border-4 border-danger">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold uppercase tracking-wider mb-1" style="font-size: 0.75rem;">Bekleyen Fatura Adedi</div>
+                        <div class="h3 mb-0 text-danger fw-bold">@unpaidCount Aktif</div>
+                    </div>
+                    <div class="p-2 bg-danger-subtle text-danger rounded-circle" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-bell"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bekleyen Tutar -->
+        <div class="col-md-4">
+            <div class="card p-3 border-start border-4 border-warning">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold uppercase tracking-wider mb-1" style="font-size: 0.75rem;">Toplam Bekleyen Tutar</div>
+                        <div class="h3 mb-0 text-warning fw-bold">@unpaidTotal.ToString("C2")</div>
+                    </div>
+                    <div class="p-2 bg-warning-subtle text-warning rounded-circle" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ödenen Toplam -->
+        <div class="col-md-4">
+            <div class="card p-3 border-start border-4 border-success">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold uppercase tracking-wider mb-1" style="font-size: 0.75rem;">Geçmişte Ödenen Toplam</div>
+                        <div class="h3 mb-0 text-success fw-bold">@paidTotal.ToString("C2")</div>
+                    </div>
+                    <div class="p-2 bg-success-subtle text-success rounded-circle" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-check-double"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- İki Kolonlu Grid Düzeni -->
     <div class="row g-4">
         <!-- Sol Kolon: Ödenmemiş Faturalar -->
         <div class="col-lg-7">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <span class="fw-semibold">Ödeme Bekleyen Faturalar</span>
-                    <span class="badge bg-danger rounded-pill">@Model.Count(b => !b.IsPaid) Aktif</span>
+            <div class="card shadow-sm h-100">
+                <div class="card-header py-3 bg-transparent d-flex justify-content-between align-items-center">
+                    <span class="fw-bold text-dark"><i class="fa-solid fa-receipt text-danger me-2"></i>Ödeme Bekleyenler</span>
+                    <span class="badge bg-danger rounded-pill">@unpaidCount Fatura</span>
                 </div>
                 <div class="card-body p-0">
                     @if (Model.Any(b => !b.IsPaid))
@@ -33,30 +88,37 @@
                                 <thead>
                                     <tr>
                                         <th>Fatura Adı</th>
-                                        <th>Kategori</th>
                                         <th>Son Gün</th>
                                         <th>Tutar</th>
-                                        <th class="text-end">İşlemler</th>
+                                        <th class="text-end" style="width: 140px;">İşlemler</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach (var bill in Model.Where(b => !b.IsPaid))
                                     {
+                                        var daysRemaining = (bill.DueDate - DateTime.UtcNow).Days;
                                         <tr>
-                                            <td class="fw-semibold text-main">@bill.Title</td>
-                                            <td><span class="badge bg-light text-dark border">@bill.Category?.Name</span></td>
-                                            <td class="text-muted small">@bill.DueDate.ToString("dd.MM.yyyy")</td>
+                                            <td class="fw-bold text-dark">@bill.Title</td>
+                                            <td>
+                                                <span class="small @(daysRemaining <= 3 ? "text-danger fw-bold" : "text-muted")">
+                                                    @bill.DueDate.ToString("dd.MM.yyyy")
+                                                    @if (daysRemaining >= 0 && daysRemaining <= 3)
+                                                    {
+                                                        <text> (@daysRemaining gün!)</text>
+                                                    }
+                                                </span>
+                                            </td>
                                             <td class="fw-bold text-danger">@bill.Amount.ToString("C2")</td>
                                             <td class="text-end">
-                                                <div class="d-flex justify-content-end gap-2">
+                                                <div class="d-flex justify-content-end gap-1">
                                                     <form asp-action="Pay" asp-route-id="@bill.Id" method="post" class="d-inline">
                                                         <button type="submit" class="btn btn-sm btn-outline-success py-1 px-3">
-                                                            <i class="fa-solid fa-check me-1"></i> Öde
+                                                            <i class="fa-solid fa-credit-card me-1"></i> Öde
                                                         </button>
                                                     </form>
                                                     <form asp-action="Delete" asp-route-id="@bill.Id" method="post" class="d-inline" onsubmit="return confirm('Bu faturayı silmek istediğinizden emin misiniz?');">
-                                                        <button type="submit" class="btn btn-sm btn-outline-danger py-1 px-2">
-                                                            <i class="fa-solid fa-trash"></i>
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger py-1 px-2" title="Sil">
+                                                            <i class="fa-solid fa-trash-can"></i>
                                                         </button>
                                                     </form>
                                                 </div>
@@ -70,19 +132,20 @@
                     else
                     {
                         <div class="text-center text-muted py-5">
-                            <i class="fa-solid fa-circle-check fa-3x mb-3 text-success"></i>
-                            <p class="mb-0">Harika! Ödenmemiş hiçbir faturanız bulunmuyor.</p>
+                            <i class="fa-solid fa-circle-check fa-4x text-success mb-3 opacity-75"></i>
+                            <h5 class="fw-bold text-dark">Ödeme Bekleyen Faturanız Yok</h5>
+                            <p class="small text-muted mb-0">Harika! Bu döneme ait ödenmemiş hiçbir faturanız bulunmuyor.</p>
                         </div>
                     }
                 </div>
             </div>
         </div>
 
-        <!-- Sağ Kolon: Ödenmiş Geçmiş Faturalar -->
+        <!-- Sağ Kolon: Ödenmiş Faturalar -->
         <div class="col-lg-5">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <span class="fw-semibold">Ödenmiş Faturalar</span>
+            <div class="card shadow-sm h-100">
+                <div class="card-header py-3 bg-transparent d-flex justify-content-between align-items-center">
+                    <span class="fw-bold text-dark"><i class="fa-solid fa-circle-check text-success me-2"></i>Ödenenler Geçmişi</span>
                     <span class="badge bg-success rounded-pill">@Model.Count(b => b.IsPaid) Ödendi</span>
                 </div>
                 <div class="card-body p-0">
@@ -93,21 +156,19 @@
                                 <thead>
                                     <tr>
                                         <th>Fatura Adı</th>
-                                        <th>Kategori</th>
                                         <th>Tutar</th>
-                                        <th class="text-end">İşlem</th>
+                                        <th class="text-end" style="width: 80px;">Sil</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach (var bill in Model.Where(b => b.IsPaid))
                                     {
                                         <tr>
-                                            <td class="fw-semibold text-muted text-decoration-line-through">@bill.Title</td>
-                                            <td><span class="badge bg-light text-muted border">@bill.Category?.Name</span></td>
+                                            <td class="text-muted text-decoration-line-through">@bill.Title</td>
                                             <td class="fw-bold text-success">@bill.Amount.ToString("C2")</td>
                                             <td class="text-end">
                                                 <form asp-action="Delete" asp-route-id="@bill.Id" method="post" class="d-inline" onsubmit="return confirm('Bu faturayı geçmişten silmek istediğinizden emin misiniz?');">
-                                                    <button type="submit" class="btn btn-sm btn-link text-danger p-0 border-0">
+                                                    <button type="submit" class="btn btn-sm btn-link text-danger p-0 border-0" title="Sil">
                                                         <i class="fa-solid fa-trash-can"></i>
                                                     </button>
                                                 </form>
@@ -121,8 +182,9 @@
                     else
                     {
                         <div class="text-center text-muted py-5">
-                            <i class="fa-solid fa-receipt fa-3x mb-3 text-secondary"></i>
-                            <p class="mb-0">Henüz geçmişe ait bir ödenmiş fatura kaydı bulunmuyor.</p>
+                            <i class="fa-solid fa-receipt fa-4x text-muted mb-3 opacity-50"></i>
+                            <h5 class="fw-bold text-dark">Geçmiş Kaydı Yok</h5>
+                            <p class="small text-muted mb-0">Henüz geçmişe ait bir ödenmiş fatura kaydı bulunmuyor.</p>
                         </div>
                     }
                 </div>

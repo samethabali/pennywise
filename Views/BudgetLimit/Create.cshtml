@@ -1,75 +1,82 @@
 @model PennyWise.Models.BudgetLimit
 
 @{
-    ViewData["Title"] = "Yeni Bütçe Limiti Belirle";
+    ViewData["Title"] = "Yeni Bütçe Limiti Tanımla";
 }
 
 <div class="row justify-content-center">
     <div class="col-md-6 col-lg-5">
-        <div class="card p-4">
-            <h2 class="mb-3">Yeni Bütçe Limiti Belirle</h2>
-            <p class="text-muted small mb-4">Belirli bir gider kategorisine aylık harcama limiti koyarak bütçenizi kontrol altında tutun.</p>
-
-            <form asp-action="Create" method="post" id="budgetLimitForm">
-                <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
-
-                <!-- Kategori Seçimi -->
-                <div class="mb-3">
-                    <label asp-for="CategoryId" class="form-label">Gider Kategorisi</label>
-                    <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.Categories">
-                        <option value="">-- Kategori Seçin --</option>
-                    </select>
-                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+        <div class="card shadow-sm">
+            <div class="card-header py-3 bg-transparent">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-gauge-high text-primary fa-lg"></i>
+                    <h5 class="mb-0 fw-bold">Yeni Bütçe Limiti Belirle</h5>
                 </div>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small mb-4">Seçeceğiniz harcama kategorisi için aylık maksimum harcama sınırı koyarak bütçenizi kontrol altında tutun.</p>
 
-                <!-- Tutar -->
-                <div class="mb-3">
-                    <label asp-for="LimitAmount" class="form-label">Aylık Limit Tutarı</label>
-                    <div class="input-group">
-                        <input asp-for="LimitAmount" type="number" step="0.01" min="0.01" class="form-control" placeholder="0.00"
-                               oninput="this.value = this.value < 0 ? 0 : this.value" />
-                        <span class="input-group-text">₺</span>
-                    </div>
-                    <span asp-validation-for="LimitAmount" class="text-danger"></span>
-                    <div class="form-text">Bu kategori için ayda en fazla harcayacağınız tutarı belirleyin.</div>
-                </div>
+                <form asp-action="Create" method="post" id="budgetLimitForm">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
 
-                <!-- Ay ve Yıl -->
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <label asp-for="Month" class="form-label">Ay</label>
-                        <select asp-for="Month" class="form-select">
-                            <option value="1">Ocak</option>
-                            <option value="2">Şubat</option>
-                            <option value="3">Mart</option>
-                            <option value="4">Nisan</option>
-                            <option value="5">Mayıs</option>
-                            <option value="6">Haziran</option>
-                            <option value="7">Temmuz</option>
-                            <option value="8">Ağustos</option>
-                            <option value="9">Eylül</option>
-                            <option value="10">Ekim</option>
-                            <option value="11">Kasım</option>
-                            <option value="12">Aralık</option>
+                    <!-- Kategori Seçimi -->
+                    <div class="mb-3">
+                        <label asp-for="CategoryId" class="form-label text-dark fw-semibold">Gider Kategorisi</label>
+                        <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.Categories">
+                            <option value="">-- Kategori Seçin --</option>
                         </select>
-                        <span asp-validation-for="Month" class="text-danger"></span>
+                        <span asp-validation-for="CategoryId" class="text-danger small"></span>
                     </div>
 
-                    <div class="col-md-6">
-                        <label asp-for="Year" class="form-label">Yıl</label>
-                        <input asp-for="Year" type="number" min="2024" max="2030" class="form-control" />
-                        <span asp-validation-for="Year" class="text-danger"></span>
+                    <!-- Tutar -->
+                    <div class="mb-3">
+                        <label asp-for="LimitAmount" class="form-label text-dark fw-semibold">Aylık Limit Tutarı</label>
+                        <div class="input-group">
+                            <input asp-for="LimitAmount" type="number" step="0.01" min="0.01" class="form-control" placeholder="0.00" required
+                                   oninput="this.value = this.value < 0 ? 0 : this.value" />
+                            <span class="input-group-text bg-light border-start-0">₺</span>
+                        </div>
+                        <span asp-validation-for="LimitAmount" class="text-danger small"></span>
+                        <div class="form-text text-muted" style="font-size: 0.75rem;">Bu gider kalemi için ayda en fazla harcayacağınız tutarı belirleyin.</div>
                     </div>
-                </div>
 
-                <!-- Butonlar -->
-                <div class="d-flex gap-3 justify-content-end">
-                    <a asp-action="Index" class="btn btn-outline-primary">İptal</a>
-                    <button type="submit" class="btn btn-primary fw-semibold px-4">
-                        <i class="fa-solid fa-gauge-high me-2"></i>Limiti Kaydet
-                    </button>
-                </div>
-            </form>
+                    <!-- Ay ve Yıl -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label asp-for="Month" class="form-label text-dark fw-semibold">Dönem Ayı</label>
+                            <select asp-for="Month" class="form-select">
+                                <option value="1">Ocak</option>
+                                <option value="2">Şubat</option>
+                                <option value="3">Mart</option>
+                                <option value="4">Nisan</option>
+                                <option value="5">Mayıs</option>
+                                <option value="6">Haziran</option>
+                                <option value="7">Temmuz</option>
+                                <option value="8">Ağustos</option>
+                                <option value="9">Eylül</option>
+                                <option value="10">Ekim</option>
+                                <option value="11">Kasım</option>
+                                <option value="12">Aralık</option>
+                            </select>
+                            <span asp-validation-for="Month" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Year" class="form-label text-dark fw-semibold">Dönem Yılı</label>
+                            <input asp-for="Year" type="number" min="2024" max="2035" class="form-control" required />
+                            <span asp-validation-for="Year" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <!-- Butonlar -->
+                    <div class="d-flex gap-2 justify-content-end border-top pt-3">
+                        <a asp-action="Index" class="btn btn-outline-primary px-3">İptal</a>
+                        <button type="submit" class="btn btn-primary px-4 fw-semibold">
+                            <i class="fa-solid fa-floppy-disk"></i> Limiti Tanımla
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
@@ -77,7 +84,6 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        // Client-Side Validation: Negatif tutar girilmesini engelle
         document.addEventListener('DOMContentLoaded', function () {
             var limitInput = document.getElementById('LimitAmount');
             if (limitInput) {
@@ -92,7 +98,6 @@
                 });
 
                 limitInput.addEventListener('keydown', function (e) {
-                    // Eksi (-) tuşunu engelle
                     if (e.key === '-' || e.key === 'e') {
                         e.preventDefault();
                     }

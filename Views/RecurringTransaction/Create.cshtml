@@ -6,90 +6,87 @@
 
 <div class="row justify-content-center">
     <div class="col-md-7">
-        <div class="glass-card p-4">
-            <div class="d-flex align-items-center gap-3 mb-3">
-                <div class="icon-badge-3d" style="background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%); width: 48px; height: 48px; font-size: 1.1rem;">
-                    <i class="fa-solid fa-rotate"></i>
-                </div>
-                <div>
-                    <h2 class="mb-0">Yeni Abonelik Oluştur</h2>
-                    <p class="text-muted small mb-0">Düzenli gelir veya giderlerinizi otomatik olarak takip edin.</p>
+        <div class="card shadow-sm">
+            <div class="card-header py-3 bg-transparent">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-rotate text-primary fa-lg"></i>
+                    <h5 class="mb-0 fw-bold">Yeni Düzenli Ödeme Talimatı (Abonelik)</h5>
                 </div>
             </div>
+            <div class="card-body">
+                <p class="text-muted small mb-4">Her ay veya hafta cüzdanınızdan otomatik olarak çekilecek/girecek düzenli gelir/giderleri planlayın.</p>
 
-            <form asp-action="Create" method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
 
-                <!-- Açıklama -->
-                <div class="mb-3">
-                    <label asp-for="Description" class="form-label"></label>
-                    <input asp-for="Description" class="form-control" placeholder="Örn: Netflix Aboneliği, Ev Kirası, Maaş" />
-                    <span asp-validation-for="Description" class="text-danger"></span>
-                </div>
+                    <!-- Açıklama -->
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label text-dark fw-semibold">Talimat / Abonelik Adı</label>
+                        <input asp-for="Description" class="form-control" placeholder="Örn: Netflix, Spotify, Ev Kirası, Maaş" required />
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
 
-                <!-- Tutar ve Periyot -->
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label asp-for="Amount" class="form-label"></label>
-                        <div class="input-group">
-                            <input asp-for="Amount" type="number" step="0.01" min="0.01" class="form-control" placeholder="0.00" />
-                            <span class="input-group-text">₺</span>
+                    <!-- Tutar ve Periyot -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="Amount" class="form-label text-dark fw-semibold">Tutar</label>
+                            <div class="input-group">
+                                <input asp-for="Amount" type="number" step="0.01" min="0.01" class="form-control" placeholder="0.00" required />
+                                <span class="input-group-text bg-light border-start-0">₺</span>
+                            </div>
+                            <span asp-validation-for="Amount" class="text-danger small"></span>
                         </div>
-                        <span asp-validation-for="Amount" class="text-danger"></span>
+                        <div class="col-md-6">
+                            <label asp-for="RecurrenceType" class="form-label text-dark fw-semibold">Tekrarlama Periyodu</label>
+                            <select asp-for="RecurrenceType" class="form-select">
+                                <option value="0">Günlük</option>
+                                <option value="1">Haftalık</option>
+                                <option value="2" selected>Aylık</option>
+                                <option value="3">Yıllık</option>
+                            </select>
+                            <span asp-validation-for="RecurrenceType" class="text-danger small"></span>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <label asp-for="RecurrenceType" class="form-label"></label>
-                        <select asp-for="RecurrenceType" class="form-select">
-                            <option value="0">🔄 Günlük</option>
-                            <option value="1">📅 Haftalık</option>
-                            <option value="2" selected>📆 Aylık</option>
-                            <option value="3">📋 Yıllık</option>
-                        </select>
-                        <span asp-validation-for="RecurrenceType" class="text-danger"></span>
-                    </div>
-                </div>
 
-                <!-- Kategori -->
-                <div class="row mb-3">
-                    <div class="col-md-12">
-                        <label asp-for="CategoryId" class="form-label"></label>
+                    <!-- Kategori -->
+                    <div class="mb-3">
+                        <label asp-for="CategoryId" class="form-label text-dark fw-semibold">Grup / Kategori</label>
                         <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.Categories">
                             <option value="">-- Kategori Seçin --</option>
                         </select>
-                        <span asp-validation-for="CategoryId" class="text-danger"></span>
+                        <span asp-validation-for="CategoryId" class="text-danger small"></span>
                     </div>
-                </div>
 
-                <!-- Başlangıç ve Bitiş Tarihi -->
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <label asp-for="StartDate" class="form-label"></label>
-                        <input asp-for="StartDate" class="form-control" type="date" />
-                        <span asp-validation-for="StartDate" class="text-danger"></span>
+                    <!-- Başlangıç ve Bitiş Tarihi -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label asp-for="StartDate" class="form-label text-dark fw-semibold">İlk İşlem Tarihi (Başlangıç)</label>
+                            <input asp-for="StartDate" class="form-control" type="date" required />
+                            <span asp-validation-for="StartDate" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="EndDate" class="form-label text-dark fw-semibold">Bitiş Tarihi (İsteğe Bağlı)</label>
+                            <input asp-for="EndDate" class="form-control" type="date" />
+                            <div class="form-text text-muted" style="font-size: 0.75rem;">Boş bırakılırsa iptal edilene kadar sürer.</div>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <label asp-for="EndDate" class="form-label"></label>
-                        <input asp-for="EndDate" class="form-control" type="date" />
-                        <small class="text-muted">Boş bırakırsanız süresiz devam eder.</small>
+
+                    <!-- Bilgi Notu -->
+                    <div class="alert alert-info d-flex align-items-start gap-2 py-2 mb-4 border-info border-opacity-10" style="background-color: var(--info-bg); border-radius: 8px;">
+                        <i class="fa-solid fa-circle-info mt-1 text-info"></i>
+                        <small class="text-muted" style="font-size: 0.8rem;">
+                            Talimat oluşturulduktan sonra, belirtilen her periyotta valör tarihinde işlem kaydı otomatik olarak cüzdan hareketlerine işlenecektir.
+                        </small>
                     </div>
-                </div>
 
-                <!-- Bilgi Notu -->
-                <div class="alert alert-info d-flex align-items-start gap-2 py-2 mb-4" style="background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2); border-radius: 10px;">
-                    <i class="fa-solid fa-circle-info mt-1 text-primary"></i>
-                    <small class="text-muted">
-                        Abonelik oluşturulduktan sonra, her periyotta otomatik olarak gelir/gider kaydı oluşturulacaktır.
-                        Dilediğiniz zaman aboneliği duraklatabilir veya silebilirsiniz.
-                    </small>
-                </div>
-
-                <div class="d-flex gap-3 justify-content-end">
-                    <a asp-action="Index" class="btn btn-outline-primary">İptal</a>
-                    <button type="submit" class="btn btn-primary fw-semibold">
-                        <i class="fa-solid fa-floppy-disk me-2"></i>Aboneliği Kaydet
-                    </button>
-                </div>
-            </form>
+                    <div class="d-flex gap-2 justify-content-end border-top pt-3">
+                        <a asp-action="Index" class="btn btn-outline-primary px-3">İptal</a>
+                        <button type="submit" class="btn btn-primary px-4 fw-semibold">
+                            <i class="fa-solid fa-floppy-disk"></i> Talimatı Kaydet
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>

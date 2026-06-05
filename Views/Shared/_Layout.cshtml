@@ -8,111 +8,157 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/PennyWise.styles.css" asp-append-version="true" />
-    <style>
-        html, body {
-            height: auto !important;
-            min-height: 100vh !important;
-            overflow-y: auto !important;
-            overflow-x: hidden !important;
-        }
-    </style>
 </head>
 <body>
-    <div class="layout-wrapper">
-        <div class="glass-bg-spheres">
-            <div class="sphere sphere-1"></div>
-            <div class="sphere sphere-2"></div>
-            <div class="sphere sphere-3"></div>
-        </div>
-        <header>
-            <nav class="navbar navbar-expand-sm navbar-toggleable-sm mb-4 @(ViewData["HideNavbarLinks"] != null ? "navbar-login-page" : "")">
-                <div class="container-fluid">
-                    <a class="navbar-brand @(ViewData["HideNavbarLinks"] != null ? "navbar-brand-glow" : "")" asp-controller="Dashboard" asp-action="Index">
-                        <i class="fa-solid fa-building-columns text-primary me-2"></i>PennyWise
-                    </a>
-                    
-                    @if (ViewData["HideNavbarLinks"] == null)
+    <div class="layout-wrapper @(ViewData["HideNavbarLinks"] != null ? "no-sidebar" : "")">
+        
+        <!-- Sidebar Backdrop for Mobile -->
+        <div class="sidebar-overlay"></div>
+
+        <!-- Left Sidebar Navigation -->
+        <aside class="sidebar">
+            <a class="sidebar-brand text-decoration-none" asp-controller="Dashboard" asp-action="Index">
+                <i class="fa-solid fa-building-columns"></i>
+                <span>PennyWise</span>
+            </a>
+            
+            @if (User.Identity?.IsAuthenticated == true && ViewData["HideNavbarLinks"] == null)
+            {
+                <div class="px-3 mt-3">
+                    @await Component.InvokeAsync("Balance")
+                </div>
+            }
+
+            <div class="sidebar-menu">
+                @if (ViewData["HideNavbarLinks"] == null)
+                {
+                    @if (User.IsInRole("Admin"))
                     {
-                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                                aria-expanded="false" aria-label="Toggle navigation">
-                            <span class="navbar-toggler-icon"></span>
-                        </button>
-                        <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                            <ul class="navbar-nav flex-grow-1">
-                                @if (User.IsInRole("Admin"))
-                                {
-                                    <li class="nav-item">
-                                        <a class="nav-link" asp-controller="Admin" asp-action="Index"><i class="fa-solid fa-shield-halved me-1"></i> Admin Paneli</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" asp-controller="Admin" asp-action="Users"><i class="fa-solid fa-users me-1"></i> Kullanıcılar</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" asp-controller="Category" asp-action="Index"><i class="fa-solid fa-tags me-1"></i> Kategoriler</a>
-                                    </li>
-                                }
-                                else
-                                {
-                                    <li class="nav-item">
-                                        <a class="nav-link" asp-controller="Dashboard" asp-action="Index"><i class="fa-solid fa-house me-1"></i> Dashboard</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" asp-controller="Transaction" asp-action="Create"><i class="fa-solid fa-plus-circle me-1"></i> Yeni İşlem</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" asp-controller="Transaction" asp-action="Index"><i class="fa-solid fa-list me-1"></i> Tüm İşlemler</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" asp-controller="Bill" asp-action="Index"><i class="fa-solid fa-receipt me-1"></i> Faturalar</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" asp-controller="SavingsGoal" asp-action="Index"><i class="fa-solid fa-bullseye me-1"></i> Hedefler</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" asp-controller="BudgetLimit" asp-action="Index"><i class="fa-solid fa-gauge-high me-1"></i> Bütçe Sınırları</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" asp-controller="RecurringTransaction" asp-action="Index"><i class="fa-solid fa-rotate me-1"></i> Abonelikler</a>
-                                    </li>
-                                }
-                            </ul>
-                            @if (User.Identity?.IsAuthenticated == true)
-                            {
-                                <div class="me-4 d-flex align-items-center balance-info">
-                                    <i class="fa-solid fa-wallet me-2"></i>
-                                    @await Component.InvokeAsync("Balance")
-                                </div>
-                            }
-                            <partial name="_LoginPartial" />
-                        </div>
+                        <div class="sidebar-section-title">Yönetici Paneli</div>
+                        <a class="sidebar-link" asp-controller="Admin" asp-action="Index">
+                            <i class="fa-solid fa-shield-halved"></i> Admin Paneli
+                        </a>
+                        <a class="sidebar-link" asp-controller="Admin" asp-action="Users">
+                            <i class="fa-solid fa-users"></i> Kullanıcılar
+                        </a>
+                        <a class="sidebar-link" asp-controller="Category" asp-action="Index">
+                            <i class="fa-solid fa-tags"></i> Kategoriler
+                        </a>
                     }
                     else
                     {
-                        <!-- Sağda şeffaf profil simgesi -->
-                        <div class="d-flex align-items-center">
-                            <a class="nav-link navbar-profile-transparent p-2" asp-area="Identity" asp-page="/Account/Login">
-                                <i class="fa-regular fa-circle-user fa-lg"></i>
-                            </a>
-                        </div>
+                        <div class="sidebar-section-title">Finansal İşlemler</div>
+                        <a class="sidebar-link" asp-controller="Dashboard" asp-action="Index">
+                            <i class="fa-solid fa-house"></i> Dashboard
+                        </a>
+                        <a class="sidebar-link" asp-controller="Transaction" asp-action="Create">
+                            <i class="fa-solid fa-plus-circle"></i> Yeni İşlem
+                        </a>
+                        <a class="sidebar-link" asp-controller="Transaction" asp-action="Index">
+                            <i class="fa-solid fa-list"></i> Tüm İşlemler
+                        </a>
+                        <a class="sidebar-link" asp-controller="Bill" asp-action="Index">
+                            <i class="fa-solid fa-receipt"></i> Faturalar
+                        </a>
+                        
+                        <div class="sidebar-section-title">Planlama ve Hedefler</div>
+                        <a class="sidebar-link" asp-controller="SavingsGoal" asp-action="Index">
+                            <i class="fa-solid fa-bullseye"></i> Hedefler
+                        </a>
+                        <a class="sidebar-link" asp-controller="BudgetLimit" asp-action="Index">
+                            <i class="fa-solid fa-gauge-high"></i> Bütçe Sınırları
+                        </a>
+                        <a class="sidebar-link" asp-controller="RecurringTransaction" asp-action="Index">
+                            <i class="fa-solid fa-rotate"></i> Abonelikler
+                        </a>
                     }
-                </div>
-            </nav>
-        </header>
-        
-        <main role="main" class="main-content container pb-3">
-            @RenderBody()
-        </main>
-
-        <footer class="footer">
-            <div class="container text-center text-muted">
-                &copy; 2026 - <span style="font-weight: 600; color: var(--primary-blue);">PennyWise</span> <span class="mx-2">|</span> Finansal Özgürlük Kontrolünüzde
+                }
             </div>
-        </footer>
+
+            @if (ViewData["HideNavbarLinks"] == null)
+            {
+                <div class="sidebar-footer">
+                    <partial name="_LoginPartial" />
+                </div>
+            }
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="main-viewport">
+            
+            <!-- Mobile Sticky Header -->
+            <header class="mobile-header">
+                <button class="toggle-sidebar-btn" type="button" aria-label="Toggle Navigation">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <span class="mobile-brand-name">
+                    <i class="fa-solid fa-building-columns text-primary"></i>PennyWise
+                </span>
+            </header>
+
+            <main role="main" class="main-content">
+                @RenderBody()
+            </main>
+
+            <footer class="footer">
+                <div class="container-fluid px-4 text-center text-md-start d-md-flex justify-content-between text-muted">
+                    <div>
+                        &copy; 2026 - <span style="font-weight: 700; color: var(--primary-blue);">PennyWise</span> | Finansal Özgürlük Kontrolünüzde
+                    </div>
+                    <div class="mt-2 mt-md-0">
+                        Güvenli Veri Altyapısı <i class="fa-solid fa-shield-halved text-success ms-1"></i>
+                    </div>
+                </div>
+            </footer>
+        </div>
     </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    
+    <!-- Sidebar Toggle & Path Highlighting Script -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const toggleBtn = document.querySelector(".toggle-sidebar-btn");
+            const sidebar = document.querySelector(".sidebar");
+            const overlay = document.querySelector(".sidebar-overlay");
+            
+            if (toggleBtn && sidebar && overlay) {
+                toggleBtn.addEventListener("click", function () {
+                    sidebar.classList.toggle("show");
+                    overlay.classList.toggle("show");
+                });
+                
+                overlay.addEventListener("click", function () {
+                    sidebar.classList.remove("show");
+                    overlay.classList.remove("show");
+                });
+            }
+
+            // Path tracking to activate matching link
+            const currentPath = window.location.pathname.toLowerCase();
+            const links = document.querySelectorAll(".sidebar-link");
+            let matched = false;
+            
+            links.forEach(link => {
+                const href = link.getAttribute("href");
+                if (href) {
+                    const cleanHref = href.toLowerCase();
+                    if (currentPath === cleanHref || (cleanHref !== "/" && currentPath.startsWith(cleanHref))) {
+                        link.classList.add("active");
+                        matched = true;
+                    }
+                }
+            });
+            
+            // Default active for dashboard if none matches
+            if (!matched && currentPath === "/") {
+                const dashLink = document.querySelector('a[href*="/Dashboard"]');
+                if (dashLink) dashLink.classList.add("active");
+            }
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

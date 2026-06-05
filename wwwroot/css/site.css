@@ -1,40 +1,43 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-    --bg-color: #F1F5F9;
+    --bg-color: #F8FAFC;
+    --sidebar-bg: #0F172A;
+    --sidebar-text: #94A3B8;
+    --sidebar-hover: #1E293B;
+    --sidebar-active: #3B82F6;
+    --sidebar-active-text: #FFFFFF;
+    
     --card-bg: #FFFFFF;
     --text-main: #0F172A;
     --text-muted: #64748B;
     --border-color: #E2E8F0;
-    --primary-blue: #3B82F6;
-    --primary-gradient: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+    --border-hover: #CBD5E1;
+    
+    --primary-blue: #2563EB;
+    --primary-hover: #1D4ED8;
+    --primary-gradient: linear-gradient(135deg, #1E40AF 0%, #2563EB 100%);
+    --card-gradient: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+    
     --success-green: #10B981;
+    --success-bg: #ECFDF5;
     --danger-red: #EF4444;
+    --danger-bg: #FEF2F2;
     --warning-orange: #F59E0B;
+    --warning-bg: #FFFBEB;
+    --info-teal: #06B6D4;
+    --info-bg: #ECFEFF;
 }
 
-html {
+html, body {
+    height: 100%;
+    min-height: 100vh;
     background-color: var(--bg-color);
-}
-
-body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background-color: transparent;
     color: var(--text-main);
-    line-height: 1.6;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.5;
     letter-spacing: -0.01em;
     -webkit-font-smoothing: antialiased;
-}
-
-/* Layout wrapper to ensure footer is pushed to the bottom */
-.layout-wrapper {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-.main-content {
-    flex-grow: 1;
 }
 
 /* Custom Scrollbar */
@@ -42,109 +45,228 @@ body {
     width: 6px;
     height: 6px;
 }
-
 ::-webkit-scrollbar-track {
     background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
     background: #CBD5E1;
     border-radius: 4px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
     background: #94A3B8;
 }
 
-/* Premium Navbar */
-.navbar {
-    background-color: rgba(255, 255, 255, 0.8) !important;
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border-color);
-    padding: 0.9rem 2rem;
-    position: sticky;
-    top: 0;
-    z-index: 1030;
+/* Main Layout Wrapper */
+.layout-wrapper {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
 }
 
-.navbar-brand {
+/* Sidebar Styling */
+.sidebar {
+    width: 280px;
+    min-width: 280px;
+    background-color: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 4px 0 24px 0 rgba(15, 23, 42, 0.05);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-brand {
+    padding: 2rem;
     font-weight: 800;
-    color: var(--text-main) !important;
-    font-size: 1.35rem;
-    letter-spacing: -0.03em;
+    font-size: 1.4rem;
+    color: #FFFFFF !important;
+    letter-spacing: -0.04em;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.nav-link {
-    color: var(--text-muted) !important;
+.sidebar-brand i {
+    color: var(--sidebar-active);
+}
+
+.sidebar-menu {
+    padding: 1.5rem 1rem;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.sidebar-menu::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar-section-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #475569;
+    padding: 0 1rem;
+    margin-bottom: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    color: var(--sidebar-text) !important;
+    text-decoration: none !important;
     font-weight: 600;
     font-size: 0.9rem;
-    padding: 0.5rem 1rem !important;
+    border-radius: 10px;
     transition: all 0.2s ease;
-    border-radius: 6px;
+    margin-bottom: 0.25rem;
 }
 
-.nav-link:hover {
-    color: var(--primary-blue) !important;
+.sidebar-link:hover {
+    background-color: var(--sidebar-hover);
+    color: #FFFFFF !important;
+}
+
+.sidebar-link.active {
+    background-color: var(--sidebar-active);
+    color: var(--sidebar-active-text) !important;
+}
+
+.sidebar-link i {
+    font-size: 1.1rem;
+    width: 20px;
+    text-align: center;
+}
+
+.sidebar-footer {
+    padding: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    background-color: rgba(15, 23, 42, 0.2);
+}
+
+/* Main Viewport styling */
+.main-viewport {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    width: calc(100% - 280px);
+    min-height: 100vh;
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 2rem;
+    max-width: 1400px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* Mobile Header */
+.mobile-header {
+    display: none;
+    height: 70px;
+    background-color: #FFFFFF;
+    border-bottom: 1px solid var(--border-color);
+    align-items: center;
+    padding: 0 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+}
+
+.mobile-brand-name {
+    font-weight: 800;
+    font-size: 1.25rem;
+    color: var(--text-main);
+    letter-spacing: -0.03em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.toggle-sidebar-btn {
+    border: none;
+    background: none;
+    color: var(--text-main);
+    font-size: 1.25rem;
+    padding: 0.5rem;
+    margin-right: 0.75rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.toggle-sidebar-btn:hover {
     background-color: #F1F5F9;
 }
 
-/* Financial Balance Info Badge */
-.balance-info {
-    background-color: #EEF2F6;
-    border: 1px solid var(--border-color);
-    padding: 0.5rem 1rem;
-    border-radius: 30px;
-    font-weight: 700;
-    font-size: 0.85rem;
-    color: var(--primary-blue);
-    display: inline-flex;
-    align-items: center;
+/* Overlay for Mobile sidebar closure */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 998;
 }
 
-/* Ultra-Premium Cards */
-.card {
-    background-color: var(--card-bg);
-    border: none !important;
-    border-radius: 16px;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: hidden;
+/* Responsiveness for Sidebar */
+@media (max-width: 991.98px) {
+    .sidebar {
+        position: fixed;
+        left: -280px;
+        top: 0;
+        bottom: 0;
+        height: 100vh;
+    }
+    .sidebar.show {
+        left: 0;
+    }
+    .main-viewport {
+        width: 100%;
+    }
+    .mobile-header {
+        display: flex;
+    }
+    .main-content {
+        padding: 1.5rem;
+    }
+    .sidebar-overlay.show {
+        display: block;
+    }
 }
 
-.card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+/* Layout without sidebar (e.g. Login, Register) */
+.layout-wrapper.no-sidebar {
+    background: radial-gradient(circle at 50% 50%, #0F172A 0%, #020617 100%) !important;
 }
 
-.card-header {
-    background-color: transparent;
-    border-bottom: 1px solid var(--border-color);
-    padding: 1.25rem 1.5rem;
-    font-weight: 700;
-    font-size: 0.95rem;
-    color: var(--text-main);
-    display: flex;
-    justify-content-between;
-    align-items: center;
+.layout-wrapper.no-sidebar .sidebar {
+    display: none !important;
 }
 
-.card-body {
-    padding: 1.5rem;
+.layout-wrapper.no-sidebar .main-viewport {
+    width: 100% !important;
+    max-width: 100% !important;
 }
 
-.card-footer {
-    background-color: #F8FAFC;
-    border-top: 1px solid var(--border-color);
-    padding: 1rem 1.5rem;
+.layout-wrapper.no-sidebar .mobile-header {
+    display: none !important;
 }
 
-/* Modern Typography */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+/* Serious Banking Typography */
+h1, h2, h3, h4, h5, h6 {
     font-weight: 700;
     color: var(--text-main);
     letter-spacing: -0.03em;
@@ -162,30 +284,210 @@ h6 {
     color: var(--text-muted) !important;
 }
 
-/* Sleek Buttons */
+/* Tabular Numbers for Perfect Financial Alignment */
+.amount-value, .balance-value, .tabular-nums, table td {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Professional Card Panels */
+.card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    box-shadow: var(--card-shadow);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px -10px rgba(0, 0, 0, 0.08), 0 1px 3px 0 rgba(0, 0, 0, 0.03);
+    border-color: var(--border-hover);
+}
+
+.card-header {
+    background-color: #FFFFFF;
+    border-bottom: 1px solid var(--border-color);
+    padding: 1.25rem 1.5rem;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-main);
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.card-footer {
+    background-color: #F8FAFC;
+    border-top: 1px solid var(--border-color);
+    padding: 1rem 1.5rem;
+}
+
+/* Bank Debit Card (Virtual Card Mockup) */
+.bank-card {
+    background: var(--card-gradient);
+    border-radius: 20px;
+    padding: 1.75rem;
+    color: #FFFFFF;
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 1.58 / 1;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 15px 30px -10px rgba(15, 23, 42, 0.3), inset 0 1px 1px rgba(255,255,255,0.15);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.bank-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.05) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.bank-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.bank-card-logo {
+    font-weight: 800;
+    font-size: 1.25rem;
+    letter-spacing: -0.03em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.bank-card-logo i {
+    color: #60A5FA;
+}
+
+.bank-card-chip {
+    width: 42px;
+    height: 32px;
+    background: linear-gradient(135deg, #F3F4F6 0%, #D1D5DB 100%);
+    border-radius: 6px;
+    position: relative;
+    box-shadow: inset 0 1px 1px rgba(255,255,255,0.8), 0 2px 4px rgba(0,0,0,0.15);
+}
+
+.bank-card-chip::after {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 8px;
+    right: 8px;
+    bottom: 6px;
+    border: 1px solid rgba(15, 23, 42, 0.15);
+    border-radius: 2px;
+}
+
+.bank-card-body {
+    margin-top: 1.5rem;
+    margin-bottom: auto;
+}
+
+.bank-card-label {
+    font-size: 0.75rem;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+}
+
+.bank-card-balance {
+    font-size: 1.85rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+}
+
+.bank-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.bank-card-holder {
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #E2E8F0;
+}
+
+.bank-card-number {
+    font-family: monospace;
+    font-size: 0.9rem;
+    letter-spacing: 0.15em;
+    color: #94A3B8;
+}
+
+/* Statement and Ledger Tables */
+.table {
+    margin-bottom: 0;
+    color: var(--text-main);
+    font-size: 0.9rem;
+}
+
+.table th {
+    font-weight: 700;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-color);
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    padding: 1rem 1.25rem;
+    background-color: #F8FAFC;
+}
+
+.table td {
+    padding: 1rem 1.25rem;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.table tbody tr:hover td {
+    background-color: #F8FAFC;
+}
+
+/* Buttons */
 .btn {
     font-weight: 600;
-    border-radius: 8px;
-    padding: 0.6rem 1.4rem;
+    border-radius: 10px;
+    padding: 0.6rem 1.25rem;
     font-size: 0.9rem;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
 }
 
 .btn-primary {
     background: var(--primary-gradient);
-    color: white;
-    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.15);
+    color: #FFFFFF;
+    border: 1px solid transparent;
+    box-shadow: 0 4px 12px 0 rgba(37, 99, 235, 0.15);
 }
 
 .btn-primary:hover {
     background: linear-gradient(135deg, #1D4ED8 0%, #1E40AF 100%);
-    box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 6px 16px 0 rgba(37, 99, 235, 0.25);
     transform: translateY(-1px);
 }
 
 .btn-outline-primary {
-    background-color: white;
+    background-color: #FFFFFF;
     color: var(--primary-blue);
     border: 1px solid var(--border-color);
 }
@@ -199,7 +501,8 @@ h6 {
 
 .btn-success {
     background-color: var(--success-green);
-    color: white;
+    color: #FFFFFF;
+    border: 1px solid transparent;
 }
 
 .btn-success:hover {
@@ -207,59 +510,50 @@ h6 {
     transform: translateY(-1px);
 }
 
-/* Financial Ledger Tables */
-.table {
-    margin-bottom: 0;
-    color: var(--text-main);
-    font-size: 0.9rem;
+.btn-danger {
+    background-color: var(--danger-red);
+    color: #FFFFFF;
+    border: 1px solid transparent;
 }
 
-.table th {
-    font-weight: 700;
-    color: var(--text-muted);
-    border-bottom: 2px solid var(--border-color);
-    text-transform: uppercase;
-    font-size: 0.7rem;
-    letter-spacing: 0.05em;
-    padding: 1.1rem 1.25rem;
-    background-color: #F8FAFC;
+.btn-danger:hover {
+    background-color: #DC2626;
+    transform: translateY(-1px);
 }
 
-.table td {
-    padding: 1.1rem 1.25rem;
-    vertical-align: middle;
-    border-bottom: 1px solid var(--border-color);
-    transition: background-color 0.15s ease;
+.btn-warning {
+    background-color: var(--warning-orange);
+    color: #FFFFFF;
+    border: 1px solid transparent;
 }
 
-.table tbody tr:hover td {
-    background-color: #F8FAFC;
+.btn-warning:hover {
+    background-color: #D97706;
+    transform: translateY(-1px);
 }
 
-/* Beautiful Badges */
+/* Badges */
 .badge {
-    padding: 0.4em 0.8em;
+    padding: 0.35em 0.75em;
     font-weight: 600;
     font-size: 0.75rem;
     border-radius: 6px;
 }
 
-/* Modern Input Controls */
-.form-control,
-.form-select {
+/* Form Controls */
+.form-control, .form-select {
     border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 0.7rem 1.1rem;
+    border-radius: 10px;
+    padding: 0.65rem 1rem;
     color: var(--text-main);
     background-color: #FFFFFF;
     font-size: 0.95rem;
     transition: all 0.2s ease;
 }
 
-.form-control:focus,
-.form-select:focus {
+.form-control:focus, .form-select:focus {
     border-color: var(--primary-blue);
-    box-shadow: 0 0 0 4px rgba(99, 91, 255, 0.1);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
     outline: none;
 }
 
@@ -270,469 +564,120 @@ label {
     font-size: 0.85rem;
 }
 
-/* Progress Bar Stylings */
-.progress {
-    border-radius: 6px;
-    background-color: var(--border-color);
-    overflow: hidden;
+/* Balance Nav Badge for sidebar */
+.user-balance-nav {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
 }
 
-.progress-bar {
-    border-radius: 6px;
-    font-weight: 700;
+.user-balance-nav span {
+    color: #64748B;
+    display: block;
+    margin-bottom: 0.25rem;
     font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
-/* Footer Styling */
+.user-balance-nav strong {
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+/* Footer in viewport styling */
 .footer {
     border-top: 1px solid var(--border-color);
     background-color: #FFFFFF;
     color: var(--text-muted);
     font-size: 0.8rem;
-    padding: 0.75rem 0;
+    padding: 1.25rem 0;
     margin-top: auto;
-    /* Push to the very bottom */
     flex-shrink: 0;
     width: 100%;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.02);
 }
 
-/* ==========================================
-   CAM MORFİZMİ (GLASSMORPHISM) TEMA TASARIMI
-   ========================================== */
-
-/* 1. Atmosfer: Soyut Arka Plan Küreleri */
-.glass-bg-spheres {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
-    z-index: -2;
-    pointer-events: none;
-}
-
-.sphere {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(130px);
-    opacity: 0.45;
-}
-
-.sphere-1 {
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, rgba(59, 130, 246, 0.5) 0%, rgba(147, 197, 253, 0.2) 100%);
-    top: -150px;
-    left: -150px;
-    animation: float1 25s infinite alternate ease-in-out;
-}
-
-.sphere-2 {
-    width: 700px;
-    height: 700px;
-    background: radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, rgba(216, 180, 254, 0.15) 100%);
-    bottom: -200px;
-    right: -150px;
-    animation: float2 30s infinite alternate ease-in-out;
-}
-
-.sphere-3 {
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, rgba(236, 72, 153, 0.3) 0%, rgba(253, 164, 186, 0.1) 100%);
-    top: 35%;
-    left: 45%;
-    animation: float3 22s infinite alternate ease-in-out;
-}
-
-@keyframes float1 {
-    0% {
-        transform: translate(0, 0) scale(1);
-    }
-
-    100% {
-        transform: translate(120px, 80px) scale(1.15);
-    }
-}
-
-@keyframes float2 {
-    0% {
-        transform: translate(0, 0) scale(1);
-    }
-
-    100% {
-        transform: translate(-100px, -90px) scale(1.1);
-    }
-}
-
-@keyframes float3 {
-    0% {
-        transform: translate(0, 0) scale(1);
-    }
-
-    100% {
-        transform: translate(70px, -60px) scale(1.2);
-    }
-}
-
-/* 2. Cam Morfizmi Kartları (Frosted Glass Cards) */
-.card {
-    background: rgba(255, 255, 255, 0.35) !important;
-    backdrop-filter: blur(15px) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(15px) saturate(180%) !important;
-    border: 1px solid rgba(255, 255, 255, 0.45) !important;
-    border-radius: 20px !important;
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05) !important;
-    transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
-}
-
-.card:hover {
-    transform: translateY(-6px) !important;
-    background: rgba(255, 255, 255, 0.5) !important;
-    border: 1px solid rgba(255, 255, 255, 0.65) !important;
-    box-shadow: 0 15px 35px 0 rgba(31, 38, 135, 0.1) !important;
-}
-
-.card-header {
-    background: rgba(255, 255, 255, 0.15) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.25) !important;
-    border-top-left-radius: 20px !important;
-    border-top-right-radius: 20px !important;
-    padding: 1.1rem 1.5rem !important;
-}
-
-/* 3. Cam Morfizmi Tablo Tasarımı */
-.table {
-    background: transparent !important;
-}
-
-.table td,
-.table th {
-    background: transparent !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
-}
-
-.table tbody tr:hover td {
-    background-color: rgba(255, 255, 255, 0.15) !important;
-}
-
-/* 4. 3D Renkli Geçişli İkon Rozetleri */
-.icon-badge-3d {
-    width: 50px;
-    height: 50px;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-    color: #ffffff !important;
-    box-shadow: 0 8px 18px -4px rgba(0, 0, 0, 0.12),
-        inset 0 2px 4px rgba(255, 255, 255, 0.4),
-        inset 0 -2px 4px rgba(0, 0, 0, 0.1);
-    transform: perspective(200px) rotateX(10deg) rotateY(-5deg);
-    transition: all 0.3s ease;
-}
-
-.card:hover .icon-badge-3d {
-    transform: perspective(200px) rotateX(0deg) rotateY(0deg) scale(1.05);
-}
-
-.icon-badge-income {
-    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-    box-shadow: 0 8px 20px -4px rgba(16, 185, 129, 0.35),
-        inset 0 2px 4px rgba(255, 255, 255, 0.3);
-}
-
-.icon-badge-expense {
-    background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
-    box-shadow: 0 8px 20px -4px rgba(239, 68, 68, 0.35),
-        inset 0 2px 4px rgba(255, 255, 255, 0.3);
-}
-
-.icon-badge-balance-positive {
-    background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
-    box-shadow: 0 8px 20px -4px rgba(59, 130, 246, 0.35),
-        inset 0 2px 4px rgba(255, 255, 255, 0.3);
-}
-
-.icon-badge-balance-negative {
-    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
-    box-shadow: 0 8px 20px -4px rgba(245, 158, 11, 0.35),
-        inset 0 2px 4px rgba(255, 255, 255, 0.3);
-}
-
-/* 5. Yumuşak Geçişli Modern Başlık İkonları */
-.gradient-icon-pie {
-    background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 2px 4px rgba(139, 92, 246, 0.2));
-}
-
-.gradient-icon-bullseye {
-    background: linear-gradient(135deg, #3B82F6 0%, #06B6D4 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.2));
-}
-
-.gradient-icon-receipt {
-    background: linear-gradient(135deg, #F59E0B 0%, #EF4444 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 2px 4px rgba(245, 158, 11, 0.2));
-}
-
-.gradient-icon-flash {
-    background: linear-gradient(135deg, #EC4899 0%, #F43F5E 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 2px 4px rgba(236, 72, 153, 0.2));
-}
-
-/* 6. Modern Cam Morfizmi Butonları */
-.btn-glass-primary {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.8) 0%, rgba(29, 78, 216, 0.8) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    color: #ffffff !important;
-    backdrop-filter: blur(4px);
-    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
-}
-
-.btn-glass-primary:hover {
-    background: linear-gradient(135deg, rgba(29, 78, 216, 0.95) 0%, rgba(30, 64, 175, 0.95) 100%);
-    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35);
-    transform: translateY(-1px);
-}
-
-.btn-glass-outline {
-    background: rgba(255, 255, 255, 0.2) !important;
-    border: 1px solid rgba(255, 255, 255, 0.4) !important;
-    color: var(--text-main) !important;
-    backdrop-filter: blur(4px);
-}
-
-.btn-glass-outline:hover {
-    background: rgba(255, 255, 255, 0.35) !important;
-    border-color: rgba(255, 255, 255, 0.55) !important;
-    color: var(--primary-blue) !important;
-    transform: translateY(-1px);
-}
-
-/* ====================================================
-   NEON CAM MORFİZMİ GİRİŞ EKRANI TASARIMI (LOGIN SCREEN)
-   ==================================================== */
-
-/* 1. Arka Plan: Koyu Mavi-Füme ve Neon Veri Akışı */
+/* Neon Glow Login Screen Overhaul for Bank Seriousness */
 .login-bg-wrapper {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: radial-gradient(circle at 50% 50%, #0c1424 0%, #03060c 100%) !important;
+    background: radial-gradient(circle at 50% 50%, #0F172A 0%, #020617 100%) !important;
     z-index: -1;
     overflow: hidden;
 }
 
-.neon-lines {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    pointer-events: none;
-}
-
-.neon-line {
-    position: absolute;
-    background: linear-gradient(to right, transparent, rgba(59, 130, 246, 0.5), transparent);
-    height: 2px;
-    width: 250px;
-    opacity: 0.7;
-}
-
-.nl-1 {
-    top: 25%;
-    left: -250px;
-    animation: neonFlow1 12s infinite linear;
-}
-
-.nl-2 {
-    top: 48%;
-    right: -250px;
-    animation: neonFlow2 15s infinite linear;
-    background: linear-gradient(to left, transparent, rgba(139, 92, 246, 0.5), transparent);
-}
-
-.nl-3 {
-    top: 72%;
-    left: -250px;
-    animation: neonFlow1 18s infinite linear;
-    background: linear-gradient(to right, transparent, rgba(6, 182, 212, 0.5), transparent);
-}
-
-.nl-4 {
-    top: 88%;
-    right: -250px;
-    animation: neonFlow2 10s infinite linear;
-}
-
-@keyframes neonFlow1 {
-    0% {
-        left: -250px;
-    }
-
-    100% {
-        left: 100%;
-    }
-}
-
-@keyframes neonFlow2 {
-    0% {
-        right: -250px;
-    }
-
-    100% {
-        right: 100%;
-    }
-}
-
-/* 2. Giriş Kartı (Glassmorphism + Neon Glow Border) */
 .card-login {
-    background: rgba(10, 15, 30, 0.65) !important;
-    backdrop-filter: blur(25px) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(25px) saturate(180%) !important;
-    border: 1px solid rgba(59, 130, 246, 0.45) !important;
-    border-radius: 24px !important;
-    box-shadow: 0 0 40px rgba(59, 130, 246, 0.15),
-        inset 0 1px 2px rgba(255, 255, 255, 0.08) !important;
-    color: #ffffff !important;
-    transition: all 0.3s ease;
+    background: rgba(15, 23, 42, 0.6) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3) !important;
+    color: #FFFFFF !important;
 }
 
-/* Login card hover efekti iptal edildi */
-
-/* 3. 3D Parlak Kalkan ve Kullanıcı İkonu */
 .login-3d-icon {
-    position: relative;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: rgba(37, 99, 235, 0.1);
+    border: 1px solid rgba(37, 99, 235, 0.2);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 76px;
-    height: 76px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, rgba(59, 130, 246, 0.35) 0%, rgba(29, 78, 216, 0.15) 100%);
-    border: 1px solid rgba(59, 130, 246, 0.6);
-    box-shadow: 0 0 25px rgba(59, 130, 246, 0.5),
-        inset 0 2px 4px rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 20px rgba(37, 99, 235, 0.15);
+    margin-bottom: 1.5rem;
 }
 
-.login-3d-icon .fa-shield-halved {
-    font-size: 2.2rem;
-    color: #3b82f6;
-    filter: drop-shadow(0 0 12px rgba(59, 130, 246, 0.85));
+.login-3d-icon i {
+    font-size: 2rem;
+    color: #3B82F6;
 }
 
-.login-3d-icon .fa-user-lock {
-    position: absolute;
-    font-size: 1.15rem;
-    color: #10B981;
-    filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.9));
-    bottom: 20%;
-    right: 20%;
-}
-
-/* 4. Metinler ve Parlayan Başlık */
 .login-title {
     font-weight: 800;
-    font-size: 2.1rem;
-    letter-spacing: -0.02em;
-    background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #a5b4fc 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 15px rgba(165, 180, 252, 0.25);
-    margin-bottom: 0.4rem;
+    font-size: 2rem;
+    letter-spacing: -0.03em;
+    color: #FFFFFF;
+    margin-bottom: 0.5rem;
 }
 
-.login-subtitle {
-    color: #94a3b8 !important;
-    font-size: 0.95rem;
-    margin-bottom: 0;
-}
-
-/* 5. Neon Buton (Mavi-Mor Geçişli ve Glow Efektli) */
 .btn-login-neon {
-    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    color: #ffffff !important;
+    background: var(--primary-gradient) !important;
+    border: 1px solid transparent !important;
+    color: #FFFFFF !important;
     font-weight: 700 !important;
-    border-radius: 50px !important;
-    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4) !important;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+    border-radius: 10px !important;
     padding: 0.75rem 1.5rem !important;
-    font-size: 1rem !important;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3) !important;
 }
 
 .btn-login-neon:hover {
-    box-shadow: 0 0 25px rgba(59, 130, 246, 0.75), 0 0 10px rgba(139, 92, 246, 0.55) !important;
-    transform: translateY(-2px) !important;
-    color: #ffffff !important;
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5) !important;
+    transform: translateY(-1px) !important;
 }
 
-/* 6. Parlayan Turkuaz Neon Bağlantılar */
 .link-neon-cyan {
-    color: #06b6d4 !important;
+    color: #3B82F6 !important;
     font-weight: 600;
     text-decoration: none;
-    transition: all 0.2s ease;
-    text-shadow: 0 0 8px rgba(6, 182, 212, 0.2);
-    font-size: 0.9rem;
 }
 
 .link-neon-cyan:hover {
-    color: #22d3ee !important;
-    text-shadow: 0 0 12px rgba(34, 211, 238, 0.6);
+    color: #60A5FA !important;
 }
 
 .link-neon-cyan-muted {
-    color: #94a3b8 !important;
-    font-size: 0.85rem;
+    color: #64748B !important;
     text-decoration: none;
-    transition: all 0.2s ease;
 }
 
 .link-neon-cyan-muted:hover {
-    color: #06b6d4 !important;
-    text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
-}
-
-/* 7. Giriş Ekranı Üst Menü (Navbar-Login-Page) */
-.navbar-login-page {
-    background: transparent !important;
-    backdrop-filter: none !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-    position: relative;
-    z-index: 100;
-}
-
-.navbar-brand-glow {
-    text-shadow: 0 0 10px rgba(59, 130, 246, 0.6), 0 0 20px rgba(59, 130, 246, 0.4);
-    color: #ffffff !important;
-}
-
-.navbar-profile-transparent {
-    background: transparent !important;
-    color: rgba(255, 255, 255, 0.5) !important;
-    font-size: 1.35rem;
-    transition: all 0.2s ease;
-    border: none !important;
-}
-
-.navbar-profile-transparent:hover {
-    color: #06b6d4 !important;
-    text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
-    background: transparent !important;
+    color: #94A3B8 !important;
 }

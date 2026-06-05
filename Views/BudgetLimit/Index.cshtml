@@ -1,31 +1,99 @@
 @model IEnumerable<PennyWise.Models.BudgetLimit>
 
 @{
-    ViewData["Title"] = "Aylık Bütçe Limitleriniz";
+    ViewData["Title"] = "Bütçe Limitleri";
     var expenses = ViewBag.CurrentExpenses as Dictionary<int, decimal> ?? new Dictionary<int, decimal>();
+    
+    var totalLimitsCount = Model.Count();
+    var exceededCount = 0;
+    var safeCount = 0;
+    
+    foreach (var limit in Model)
+    {
+        var spent = expenses.ContainsKey(limit.CategoryId) ? expenses[limit.CategoryId] : 0m;
+        if (spent > limit.LimitAmount)
+        {
+            exceededCount++;
+        }
+        else
+        {
+            safeCount++;
+        }
+    }
 }
 
-<div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+<div class="container-fluid px-0">
+    <!-- Üst Başlık ve Yeni Bütçe Limiti Belirleme -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom gap-3">
         <div>
-            <h1 class="h2 mb-0">Aylık Bütçe Limitleriniz</h1>
-            <p class="text-muted mb-0">@ViewBag.CurrentMonth — Kategori bazlı harcama limitlerini belirleyin ve takip edin.</p>
+            <span class="text-muted text-uppercase fw-bold tracking-wider small" style="font-size: 0.75rem; letter-spacing: 0.05em;">Aylık Limit Kontrolleri</span>
+            <h1 class="h2 mb-1">Bütçe Sınırları</h1>
+            <p class="text-muted mb-0 small">@ViewBag.CurrentMonth — Gider kalemlerine aylık harcama limitleri koyarak hedeflerinizden şaşmayın.</p>
         </div>
         <div>
-            <a asp-action="Create" class="btn btn-primary fw-semibold">
-                <i class="fa-solid fa-plus me-2"></i>Yeni Limit Belirle
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fa-solid fa-plus"></i> Yeni Limit Tanımla
             </a>
         </div>
     </div>
 
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
             <i class="fa-solid fa-circle-check me-2"></i>@TempData["Success"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
+    <!-- Bütçe Limit Metrikleri -->
+    <div class="row g-3 mb-4">
+        <!-- Toplam Limit Sayısı -->
+        <div class="col-md-4">
+            <div class="card p-3 border-start border-4 border-primary">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold uppercase tracking-wider mb-1" style="font-size: 0.75rem;">Toplam Limit Tanımı</div>
+                        <div class="h3 mb-0 text-primary fw-bold">@totalLimitsCount Adet</div>
+                    </div>
+                    <div class="p-2 bg-primary-subtle text-primary rounded-circle" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Güvenli Harcama -->
+        <div class="col-md-4">
+            <div class="card p-3 border-start border-4 border-success">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold uppercase tracking-wider mb-1" style="font-size: 0.75rem;">Limit Dahili (Güvenli)</div>
+                        <div class="h3 mb-0 text-success fw-bold">@safeCount Kategori</div>
+                    </div>
+                    <div class="p-2 bg-success-subtle text-success rounded-circle" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Limit Aşımı Yapanlar -->
+        <div class="col-md-4">
+            <div class="card p-3 border-start border-4 border-danger">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold uppercase tracking-wider mb-1" style="font-size: 0.75rem;">Limit Aşımı Yapanlar</div>
+                        <div class="h3 mb-0 text-danger fw-bold">@exceededCount Kategori</div>
+                    </div>
+                    <div class="p-2 bg-danger-subtle text-danger rounded-circle" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Limitler Grid -->
     <div class="row g-4">
         @if (Model.Any())
         {
@@ -38,18 +106,18 @@
                 var isWarning = percentage >= 80 && !isExceeded;
 
                 <div class="col-md-6 col-lg-4">
-                    <div class="card h-100 d-flex flex-column justify-content-between @(isExceeded ? "border-danger" : "")">
+                    <div class="card h-100 d-flex flex-column justify-content-between @(isExceeded ? "border-danger border-opacity-50" : "")">
                         <div>
                             <div class="card-header d-flex justify-content-between align-items-start border-0 pb-0 bg-transparent pt-3 px-3">
                                 <div>
-                                    <h5 class="fw-bold mb-0 text-main">@limit.Category?.Name</h5>
-                                    <span class="text-muted small">@limit.Month/@limit.Year</span>
+                                    <h5 class="fw-bold mb-0 text-dark">@limit.Category?.Name</h5>
+                                    <span class="text-muted small">@limit.Month/@limit.Year Dönemi</span>
                                 </div>
                                 <div class="d-flex gap-2">
                                     <a asp-action="Edit" asp-route-id="@limit.Id" class="btn btn-sm btn-link text-primary p-0 border-0" title="Düzenle">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </a>
-                                    <form asp-action="Delete" asp-route-id="@limit.Id" method="post" onsubmit="return confirm('Bu bütçe limitini silmek istediğinizden emin misiniz?');">
+                                    <form asp-action="Delete" asp-route-id="@limit.Id" method="post" class="d-inline" onsubmit="return confirm('Bu bütçe limitini silmek istediğinizden emin misiniz?');">
                                         <button type="submit" class="btn btn-sm btn-link text-danger p-0 border-0" title="Sil">
                                             <i class="fa-solid fa-trash-can"></i>
                                         </button>
@@ -60,38 +128,38 @@
                             <div class="card-body px-3 pt-2">
                                 @if (isExceeded)
                                 {
-                                    <div class="alert alert-danger py-2 px-3 small mb-3">
+                                    <div class="alert alert-danger py-2 px-3 small mb-3 border-danger border-opacity-10" style="background-color: var(--danger-bg); border-radius: 8px;">
                                         <i class="fa-solid fa-triangle-exclamation me-1"></i>
-                                        <strong>Limit Aşıldı!</strong> Bu kategoride bütçenizi <strong>@((spent - limit.LimitAmount).ToString("C2"))</strong> aştınız.
+                                        <strong>Limit Aşıldı!</strong> Bütçeyi <strong>@((spent - limit.LimitAmount).ToString("C2"))</strong> aştınız.
                                     </div>
                                 }
                                 else if (isWarning)
                                 {
-                                    <div class="alert alert-warning py-2 px-3 small mb-3">
+                                    <div class="alert alert-warning py-2 px-3 small mb-3 border-warning border-opacity-10" style="background-color: var(--warning-bg); border-radius: 8px;">
                                         <i class="fa-solid fa-exclamation-circle me-1"></i>
-                                        Dikkat! Bütçe limitinizin <strong>%@percentage</strong>'ine ulaştınız.
+                                        <strong>Dikkat!</strong> Limitinizin <strong>%@percentage</strong> seviyesindesiniz.
                                     </div>
                                 }
 
                                 <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <span class="small fw-semibold text-muted">Harcama Durumu</span>
-                                    <span class="small fw-bold">%@percentage</span>
+                                    <span class="small fw-semibold text-muted">Harcama Oranı</span>
+                                    <span class="small fw-bold text-dark">%@percentage</span>
                                 </div>
                                 <div class="progress mb-3" style="height: 10px; background-color: var(--border-color);">
                                     <div class="progress-bar @(isExceeded ? "bg-danger" : isWarning ? "bg-warning" : "bg-success")"
                                          role="progressbar"
-                                         style="width: @(percentage)%; border-radius: 5px;"
-                                         aria-valuenow="@percentage" aria-valuemin="0" aria-valuemax="100">
+                                         style="width: @(percentage.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture))%; border-radius: 5px;"
+                                         aria-valuenow="@percentage.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)" aria-valuemin="0" aria-valuemax="100">
                                     </div>
                                 </div>
 
-                                <div class="d-flex justify-content-between small text-muted">
-                                    <div>Harcanan: <span class="fw-bold @(isExceeded ? "text-danger" : "text-main")">@spent.ToString("C2")</span></div>
-                                    <div>Limit: <span class="fw-bold text-main">@limit.LimitAmount.ToString("C2")</span></div>
+                                <div class="d-flex justify-content-between small text-muted mb-2">
+                                    <div>Harcanan: <br/><span class="fw-bold @(isExceeded ? "text-danger" : "text-dark")">@spent.ToString("C2")</span></div>
+                                    <div class="text-end">Aylık Limit: <br/><span class="fw-bold text-dark">@limit.LimitAmount.ToString("C2")</span></div>
                                 </div>
-                                <div class="text-center mt-2">
+                                <div class="text-center border-top pt-2 mt-2">
                                     <span class="small @(remaining >= 0 ? "text-success" : "text-danger") fw-bold">
-                                        Kalan: @remaining.ToString("C2")
+                                        @(remaining >= 0 ? "Kalan Güvenli Bakiye: " : "Aşılan Tutar: ") @Math.Abs(remaining).ToString("C2")
                                     </span>
                                 </div>
                             </div>
@@ -103,15 +171,15 @@
         else
         {
             <div class="col-12">
-                <div class="card text-center py-5">
+                <div class="card text-center py-5 shadow-sm">
                     <div class="card-body">
-                        <i class="fa-solid fa-gauge-high fa-4x text-muted mb-3"></i>
-                        <h3>Henüz Bütçe Limiti Belirlemediniz</h3>
-                        <p class="text-muted max-width-md mx-auto mb-4">
-                            Kategorilere aylık harcama limiti koyarak bütçenizi kontrol altında tutun.
+                        <i class="fa-solid fa-gauge-high fa-4x text-muted mb-3 opacity-50"></i>
+                        <h3 class="fw-bold">Bütçe Limiti Tanımlanmamış</h3>
+                        <p class="text-muted max-width-md mx-auto mb-4 small">
+                            Harcama kategorilerine bütçe sınırları koyarak finansal disiplininizi koruyun.
                         </p>
                         <a asp-action="Create" class="btn btn-primary fw-semibold px-4">
-                            <i class="fa-solid fa-plus me-2"></i>İlk Bütçe Limitini Belirle
+                            <i class="fa-solid fa-plus me-2"></i>İlk Limitini Belirle
                         </a>
                     </div>
                 </div>

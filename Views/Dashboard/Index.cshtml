@@ -2,87 +2,148 @@
 
 @{
     ViewData["Title"] = "Finansal Kontrol Paneli";
+    
+    // Kullanıcı adı çıkarma
+    var email = User.Identity?.Name ?? "";
+    var username = !string.IsNullOrEmpty(email) ? email.Split('@')[0] : "Kullanıcı";
+    var displayName = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(username);
 }
 
-<div class="container">
+<div class="container-fluid px-0">
     <!-- Üst Başlık ve Rapor İndirme -->
-    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom gap-3">
         <div>
-            <h1 class="h2 mb-0">Finansal Özetiniz</h1>
-            <p class="text-muted mb-0">Aylık finansal durumunuzu ve bütçe hedeflerinizi yönetin.</p>
+            <span class="text-muted text-uppercase fw-bold tracking-wider small" style="font-size: 0.75rem; letter-spacing: 0.05em;">Kişisel Portföy Özeti</span>
+            <h1 class="h2 mb-1">Merhaba, @displayName</h1>
+            <p class="text-muted mb-0 small">İçinde bulunduğunuz döneme ait varlık, gider ve bütçe planlarınız aşağıda listelenmiştir.</p>
         </div>
         <div class="d-flex gap-2">
-            <a asp-action="PrintReport" target="_blank" class="btn btn-primary fw-semibold">
-                <i class="fa-solid fa-file-pdf me-2"></i>PDF Raporu İndir
+            <a asp-action="PrintReport" target="_blank" class="btn btn-primary btn-sm px-3 py-2">
+                <i class="fa-solid fa-file-pdf"></i> PDF Raporu İndir
             </a>
-            <a asp-action="ExportTransactionsCsv" class="btn btn-outline-primary fw-semibold">
-                <i class="fa-solid fa-file-csv me-2"></i>Excel/CSV Aktar
+            <a asp-action="ExportTransactionsCsv" class="btn btn-outline-primary btn-sm px-3 py-2">
+                <i class="fa-solid fa-file-csv"></i> Excel/CSV Aktar
             </a>
         </div>
     </div>
 
-    <!-- Özet Kartları (Glassmorphism & 3D İkonlar) -->
-    <div class="row g-3 mb-4">
-        <!-- Toplam Gelir -->
-        <div class="col-md-4">
-            <div class="card p-3">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <div class="text-muted small fw-semibold uppercase tracking-wider mb-1">Toplam Gelir</div>
-                        <div class="h2 mb-0 text-success fw-bold">@Model.TotalIncome.ToString("C2")</div>
-                    </div>
-                    <div class="icon-badge-3d icon-badge-income">
-                        <i class="fa-solid fa-arrow-down-long"></i>
-                    </div>
+    <!-- Birincil Finansal Kartlar & Debit Card Gösterimi -->
+    <div class="row g-4 mb-4">
+        <!-- Sol: Dijital Banka Kartı Mockup (Debit Card) -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="bank-card">
+                <div class="bank-card-header">
+                    <span class="bank-card-logo">
+                        <i class="fa-solid fa-building-columns"></i> PENNYWISE
+                    </span>
+                    <span class="small fw-bold text-white-50" style="font-size: 0.65rem; letter-spacing: 0.1em;">DEBIT CARD</span>
+                </div>
+                <div class="bank-card-chip"></div>
+                <div class="bank-card-body">
+                    <div class="bank-card-label">Kalan Net Bakiye</div>
+                    <div class="bank-card-balance">@Model.NetBalance.ToString("C2")</div>
+                </div>
+                <div class="bank-card-footer">
+                    <span class="bank-card-holder">@displayName</span>
+                    <span class="bank-card-number">**** **** **** @(DateTime.Now.Year)</span>
                 </div>
             </div>
         </div>
-        <!-- Toplam Gider -->
-        <div class="col-md-4">
-            <div class="card p-3">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <div class="text-muted small fw-semibold uppercase tracking-wider mb-1">Toplam Gider</div>
-                        <div class="h2 mb-0 text-danger fw-bold">@Model.TotalExpense.ToString("C2")</div>
-                    </div>
-                    <div class="icon-badge-3d icon-badge-expense">
-                        <i class="fa-solid fa-arrow-up-long"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Net Bakiye -->
-        <div class="col-md-4">
-            <div class="card p-3">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <div class="text-muted small fw-semibold uppercase tracking-wider mb-1">Net Bakiye</div>
-                        <div class="h2 mb-0 fw-bold @(Model.NetBalance >= 0 ? "text-primary" : "text-warning")">
-                            @Model.NetBalance.ToString("C2")
+
+        <!-- Sağ: Finansal Akışlar ve Hızlı Menü -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="row g-3 h-100 flex-column justify-content-between">
+                <!-- Gelir & Gider Akış Kartları -->
+                <div class="col-12">
+                    <div class="row g-3">
+                        <!-- Toplam Gelir -->
+                        <div class="col-sm-6">
+                            <div class="card p-3 border-start border-4 border-success">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <div class="text-muted small fw-semibold uppercase tracking-wider mb-1" style="font-size: 0.75rem;">Aylık Gelir Girişi</div>
+                                        <div class="h3 mb-0 text-success fw-bold">@Model.TotalIncome.ToString("C2")</div>
+                                    </div>
+                                    <div class="p-3 bg-success-subtle text-success rounded-circle" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fa-solid fa-arrow-down-long"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Toplam Gider -->
+                        <div class="col-sm-6">
+                            <div class="card p-3 border-start border-4 border-danger">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <div class="text-muted small fw-semibold uppercase tracking-wider mb-1" style="font-size: 0.75rem;">Aylık Gider Çıkışı</div>
+                                        <div class="h3 mb-0 text-danger fw-bold">@Model.TotalExpense.ToString("C2")</div>
+                                    </div>
+                                    <div class="p-3 bg-danger-subtle text-danger rounded-circle" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fa-solid fa-arrow-up-long"></i>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="icon-badge-3d @(Model.NetBalance >= 0 ? "icon-badge-balance-positive" : "icon-badge-balance-negative")">
-                        <i class="fa-solid fa-wallet"></i>
+                </div>
+
+                <!-- Hızlı İşlemler Grubu -->
+                <div class="col-12">
+                    <div class="card border-0 shadow-none bg-transparent">
+                        <div class="card-header bg-transparent border-0 px-0 pb-2 pt-0">
+                            <span class="fw-bold text-muted small text-uppercase tracking-wider" style="font-size: 0.75rem;">
+                                <i class="fa-solid fa-bolt text-primary me-1"></i> Hızlı Bankacılık İşlemleri
+                            </span>
+                        </div>
+                        <div class="card-body px-0 py-0">
+                            <div class="row g-2">
+                                <div class="col-6 col-sm-3">
+                                    <a asp-controller="Transaction" asp-action="Create" class="btn btn-outline-primary w-100 py-3 d-flex flex-column gap-2 rounded-3 border">
+                                        <i class="fa-solid fa-plus-circle fa-lg"></i>
+                                        <span class="small fw-semibold" style="font-size: 0.8rem;">Yeni İşlem</span>
+                                    </a>
+                                </div>
+                                <div class="col-6 col-sm-3">
+                                    <a asp-controller="Bill" asp-action="Create" class="btn btn-outline-primary w-100 py-3 d-flex flex-column gap-2 rounded-3 border">
+                                        <i class="fa-solid fa-receipt fa-lg"></i>
+                                        <span class="small fw-semibold" style="font-size: 0.8rem;">Fatura Ekle</span>
+                                    </a>
+                                </div>
+                                <div class="col-6 col-sm-3">
+                                    <a asp-controller="SavingsGoal" asp-action="Create" class="btn btn-outline-primary w-100 py-3 d-flex flex-column gap-2 rounded-3 border">
+                                        <i class="fa-solid fa-bullseye fa-lg"></i>
+                                        <span class="small fw-semibold" style="font-size: 0.8rem;">Hedef Koy</span>
+                                    </a>
+                                </div>
+                                <div class="col-6 col-sm-3">
+                                    <a asp-controller="BudgetLimit" asp-action="Create" class="btn btn-outline-primary w-100 py-3 d-flex flex-column gap-2 rounded-3 border">
+                                        <i class="fa-solid fa-gauge-high fa-lg"></i>
+                                        <span class="small fw-semibold" style="font-size: 0.8rem;">Bütçe Limiti</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Orta Bölüm: Grafikler ve Birikim Hedefleri -->
+    <!-- Orta Bölüm: Grafikler ve Birikim Pockets (Vaults) -->
     <div class="row g-4 mb-4">
-        <!-- Chart.js Grafiği -->
-        <div class="col-lg-6">
+        <!-- Chart.js Gelir & Gider Dağılımları -->
+        <div class="col-lg-7">
             <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <span class="fw-semibold d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-chart-pie gradient-icon-pie"></i> Gelir ve Gider Dağılımı
+                <div class="card-header border-bottom-0 py-3 bg-transparent">
+                    <span class="fw-bold d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-chart-pie text-primary"></i> Varlık Dağılım Analizi
                     </span>
                 </div>
-                <div class="card-body d-flex flex-column align-items-center justify-content-center" style="min-height: 300px;">
+                <div class="card-body py-2 d-flex align-items-center justify-content-center" style="min-height: 280px;">
                     <div class="row w-100">
                         <div class="col-6 d-flex flex-column align-items-center">
-                            <h6 class="text-muted small fw-bold">Giderler</h6>
+                            <span class="text-muted small fw-bold mb-2">Gider Dağılımı</span>
                             @if (Model.CategoryDistribution != null && Model.CategoryDistribution.Any())
                             {
                                 <div style="position: relative; height:180px; width:100%">
@@ -91,11 +152,14 @@
                             }
                             else
                             {
-                                <p class="small text-muted mt-5">Kayıtlı Gider Yok</p>
+                                <div class="d-flex flex-column align-items-center justify-content-center h-100 text-center py-5">
+                                    <i class="fa-solid fa-chart-pie fa-2x text-muted mb-2"></i>
+                                    <p class="small text-muted mb-0">Gider Kaydı Yok</p>
+                                </div>
                             }
                         </div>
                         <div class="col-6 d-flex flex-column align-items-center">
-                            <h6 class="text-muted small fw-bold">Gelirler</h6>
+                            <span class="text-muted small fw-bold mb-2">Gelir Dağılımı</span>
                             @if (Model.IncomeDistribution != null && Model.IncomeDistribution.Any())
                             {
                                 <div style="position: relative; height:180px; width:100%">
@@ -104,7 +168,10 @@
                             }
                             else
                             {
-                                <p class="small text-muted mt-5">Kayıtlı Gelir Yok</p>
+                                <div class="d-flex flex-column align-items-center justify-content-center h-100 text-center py-5">
+                                    <i class="fa-solid fa-chart-pie fa-2x text-muted mb-2"></i>
+                                    <p class="small text-muted mb-0">Gelir Kaydı Yok</p>
+                                </div>
                             }
                         </div>
                     </div>
@@ -112,14 +179,14 @@
             </div>
         </div>
 
-        <!-- Birikim Hedefleri -->
-        <div class="col-lg-6">
+        <!-- Birikim Kasaları (Revolut/Vaults Benzeri) -->
+        <div class="col-lg-5">
             <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <span class="fw-semibold d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-bullseye gradient-icon-bullseye"></i> Birikim Hedefleriniz
+                <div class="card-header d-flex justify-content-between align-items-center py-3 bg-transparent">
+                    <span class="fw-bold d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-vault text-primary"></i> Birikim Kasalarınız (Kasa)
                     </span>
-                    <a asp-controller="SavingsGoal" asp-action="Index" class="btn btn-sm btn-glass-outline border-0">Yönet</a>
+                    <a asp-controller="SavingsGoal" asp-action="Index" class="btn btn-sm btn-outline-primary border-0 py-1 px-2">Yönet</a>
                 </div>
                 <div class="card-body">
                     @if (Model.SavingsGoals.Any())
@@ -127,13 +194,17 @@
                         <div class="d-flex flex-column gap-3">
                             @foreach (var goal in Model.SavingsGoals.Take(3))
                             {
-                                <div>
+                                <div class="p-2 border rounded-3 bg-light-subtle">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="fw-semibold text-muted small">@goal.Title</span>
-                                        <span class="small fw-bold">@goal.ProgressPercentage% (@goal.CurrentAmount.ToString("C0") / @goal.TargetAmount.ToString("C0"))</span>
+                                        <span class="fw-semibold text-dark small"><i class="fa-solid fa-piggy-bank text-primary me-2"></i>@goal.Title</span>
+                                        <span class="small fw-bold">@goal.ProgressPercentage%</span>
                                     </div>
-                                    <div class="progress" style="height: 8px; background-color: var(--border-color);">
-                                        <div class="progress-bar bg-primary" role="progressbar" style="width: @(goal.ProgressPercentage)%; border-radius: 4px;" aria-valuenow="@goal.ProgressPercentage" aria-valuemin="0" aria-valuemax="100"></div>
+                                    <div class="progress mb-2" style="height: 6px; background-color: var(--border-color);">
+                                        <div class="progress-bar bg-primary" role="progressbar" style="width: @(goal.ProgressPercentage.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture))%; border-radius: 4px;" aria-valuenow="@goal.ProgressPercentage.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <div class="d-flex justify-content-between text-muted" style="font-size: 0.75rem;">
+                                        <span>@goal.CurrentAmount.ToString("C0") / @goal.TargetAmount.ToString("C0")</span>
+                                        <span>Hedef: @goal.TargetDate.ToString("dd.MM.yyyy")</span>
                                     </div>
                                 </div>
                             }
@@ -141,20 +212,11 @@
                     }
                     else
                     {
-                        <div class="text-center text-muted py-4 d-flex flex-column align-items-center justify-content-center">
-                            <svg class="mb-3" width="100" height="100" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="60" cy="60" r="50" fill="#F8FAFC"/>
-                                <circle cx="60" cy="60" r="30" stroke="#E2E8F0" stroke-width="6"/>
-                                <circle cx="60" cy="60" r="20" stroke="#94A3B8" stroke-width="6"/>
-                                <circle cx="60" cy="60" r="10" stroke="#3B82F6" stroke-width="6"/>
-                                <line x1="60" y1="20" x2="60" y2="40" stroke="#CBD5E1" stroke-width="4" stroke-linecap="round"/>
-                                <line x1="60" y1="80" x2="60" y2="100" stroke="#CBD5E1" stroke-width="4" stroke-linecap="round"/>
-                                <line x1="20" y1="60" x2="40" y2="60" stroke="#CBD5E1" stroke-width="4" stroke-linecap="round"/>
-                                <line x1="80" y1="60" x2="100" y2="60" stroke="#CBD5E1" stroke-width="4" stroke-linecap="round"/>
-                            </svg>
-                            <p class="small mb-1 fw-semibold text-dark">Aktif Hedef Yok</p>
-                            <p class="small mb-3 text-muted" style="font-size: 0.8rem;">Henüz aktif bir birikim hedefi belirlemediniz.</p>
-                            <a asp-controller="SavingsGoal" asp-action="Create" class="btn btn-sm btn-primary px-3 rounded-pill shadow-sm">Hedef Belirle</a>
+                        <div class="text-center text-muted py-5 d-flex flex-column align-items-center justify-content-center">
+                            <i class="fa-solid fa-piggy-bank fa-3x text-muted mb-3"></i>
+                            <p class="small mb-1 fw-bold text-dark">Aktif Kasa Bulunmuyor</p>
+                            <p class="small mb-3 text-muted" style="font-size: 0.8rem;">Gelecek planlarınız için hemen bir birikim kasası oluşturun.</p>
+                            <a asp-controller="SavingsGoal" asp-action="Create" class="btn btn-sm btn-primary px-3 rounded-pill shadow-sm">Kasa Oluştur</a>
                         </div>
                     }
                 </div>
@@ -162,16 +224,15 @@
         </div>
     </div>
 
-    <!-- Alt Bölüm: Yaklaşan Faturalar ve Hızlı Erişim -->
-    <div class="row g-4">
-        <!-- Yaklaşan Faturalar -->
-        <div class="col-lg-8">
-            <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <span class="fw-semibold d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-receipt gradient-icon-receipt"></i> Yaklaşan Faturalar
+    <!-- Alt Bölüm: Yaklaşan Faturalar Ledger Ekstresi -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center py-3 bg-transparent">
+                    <span class="fw-bold d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-receipt text-primary"></i> Yaklaşan Fatura Ödemeleri
                     </span>
-                    <a asp-controller="Bill" asp-action="Index" class="btn btn-sm btn-glass-outline border-0">Tümünü Gör</a>
+                    <a asp-controller="Bill" asp-action="Index" class="btn btn-sm btn-outline-primary border-0 py-1 px-2">Tümünü Listele</a>
                 </div>
                 <div class="card-body p-0">
                     @if (Model.UpcomingBills.Any())
@@ -182,7 +243,7 @@
                                     <tr>
                                         <th>Fatura Adı</th>
                                         <th>Kategori</th>
-                                        <th>Son Gün</th>
+                                        <th>Son Ödeme Tarihi</th>
                                         <th>Tutar</th>
                                         <th class="text-end">İşlem</th>
                                     </tr>
@@ -190,15 +251,24 @@
                                 <tbody>
                                     @foreach (var bill in Model.UpcomingBills)
                                     {
+                                        var daysRemaining = (bill.DueDate - DateTime.UtcNow).Days;
                                         <tr>
-                                            <td class="fw-semibold">@bill.Title</td>
+                                            <td class="fw-bold text-dark">@bill.Title</td>
                                             <td><span class="badge bg-light text-dark border">@bill.Category?.Name</span></td>
-                                            <td class="text-muted small">@bill.DueDate.ToString("dd.MM.yyyy")</td>
+                                            <td>
+                                                <span class="small @(daysRemaining <= 3 ? "text-danger fw-bold" : "text-muted")">
+                                                    @bill.DueDate.ToString("dd.MM.yyyy")
+                                                    @if (daysRemaining >= 0 && daysRemaining <= 3)
+                                                    {
+                                                        <text> (@daysRemaining gün kaldı!)</text>
+                                                    }
+                                                </span>
+                                            </td>
                                             <td class="fw-bold text-danger">@bill.Amount.ToString("C2")</td>
                                             <td class="text-end">
                                                 <form asp-controller="Bill" asp-action="Pay" asp-route-id="@bill.Id" method="post" class="d-inline">
                                                     <button type="submit" class="btn btn-sm btn-outline-primary py-1 px-3">
-                                                        <i class="fa-solid fa-check-double me-1"></i> Öde
+                                                        <i class="fa-solid fa-credit-card"></i> Öde
                                                     </button>
                                                 </form>
                                             </td>
@@ -210,52 +280,43 @@
                     }
                     else
                     {
-                        <div class="text-center text-muted py-4 d-flex flex-column align-items-center justify-content-center h-100">
-                            <svg class="mb-3" width="100" height="100" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="60" cy="60" r="50" fill="#F8FAFC"/>
-                                <rect x="42" y="38" width="36" height="48" rx="8" fill="#E2E8F0"/>
-                                <circle cx="60" cy="54" r="8" fill="#10B981" fill-opacity="0.2"/>
-                                <path d="M57 54L59 56L63 52" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <rect x="50" y="68" width="20" height="4" rx="2" fill="#94A3B8"/>
-                                <rect x="54" y="76" width="12" height="4" rx="2" fill="#94A3B8"/>
-                            </svg>
-                            <p class="small mb-1 fw-semibold text-dark">Faturanız Yok</p>
-                            <p class="small mb-3 text-muted" style="font-size: 0.8rem;">Ödenmesi gereken yaklaşan bir faturanız bulunmuyor.</p>
-                            <a asp-controller="Bill" asp-action="Create" class="btn btn-sm btn-glass-primary px-3 rounded-pill shadow-sm">Fatura Ekle</a>
+                        <div class="text-center text-muted py-5 d-flex flex-column align-items-center justify-content-center">
+                            <i class="fa-solid fa-circle-check fa-3x text-success mb-3"></i>
+                            <p class="small mb-1 fw-bold text-dark">Faturanız Bulunmuyor</p>
+                            <p class="small mb-3 text-muted" style="font-size: 0.8rem;">Yakın zamanda ödenmesi gereken bir faturanız kalmadı.</p>
+                            <a asp-controller="Bill" asp-action="Create" class="btn btn-sm btn-primary px-3 rounded-pill shadow-sm">Fatura Ekle</a>
                         </div>
                     }
-                </div>
-            </div>
-        </div>
- 
-        <!-- Hızlı İşlemler Kılavuzu -->
-        <div class="col-lg-4">
-            <div class="card h-100">
-                <div class="card-header">
-                    <span class="fw-semibold d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-bolt gradient-icon-flash"></i> Hızlı İşlemler
-                    </span>
-                </div>
-                <div class="card-body d-flex flex-column gap-2 justify-content-center">
-                    <a asp-controller="Transaction" asp-action="Create" class="btn btn-glass-primary w-100 text-start py-2">
-                        <i class="fa-solid fa-plus-circle me-2"></i> Yeni Gelir / Gider Ekle
-                    </a>
-                    <a asp-controller="Bill" asp-action="Create" class="btn btn-glass-outline w-100 text-start py-2">
-                        <i class="fa-solid fa-receipt me-2"></i> Gelecek Fatura Tanımla
-                    </a>
-                    <a asp-controller="SavingsGoal" asp-action="Create" class="btn btn-glass-outline w-100 text-start py-2">
-                        <i class="fa-solid fa-bullseye me-2"></i> Birikim Hedefi Koy
-                    </a>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Chart.js Kütüphanesi -->
+<!-- Chart.js Kütüphanesi & Banka Tasarım Konfigürasyonu -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        boxWidth: 8,
+                        padding: 12,
+                        font: {
+                            family: "'Plus Jakarta Sans', sans-serif",
+                            size: 10,
+                            weight: '500'
+                        }
+                    }
+                }
+            },
+            cutout: '72%'
+        };
+
         @if (Model.CategoryDistribution != null && Model.CategoryDistribution.Any())
         {
             <text>
@@ -266,11 +327,12 @@
                     labels: @Html.Raw(Json.Serialize(Model.CategoryDistribution.Select(c => c.CategoryName))),
                     datasets: [{
                         data: @Html.Raw(Json.Serialize(Model.CategoryDistribution.Select(c => c.TotalAmount))),
-                        backgroundColor: ['#EF4444', '#F59E0B', '#8B5CF6', '#F43F5E', '#D946EF', '#6B7280'],
-                        borderWidth: 2, borderColor: '#ffffff'
+                        backgroundColor: ['#EF4444', '#F59E0B', '#8B5CF6', '#EC4899', '#6366F1', '#64748B'],
+                        borderWidth: 2, 
+                        borderColor: '#ffffff'
                     }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: {size: 10} } } }, cutout: '65%' }
+                options: chartOptions
             });
             </text>
         }
@@ -285,11 +347,12 @@
                     labels: @Html.Raw(Json.Serialize(Model.IncomeDistribution.Select(c => c.CategoryName))),
                     datasets: [{
                         data: @Html.Raw(Json.Serialize(Model.IncomeDistribution.Select(c => c.TotalAmount))),
-                        backgroundColor: ['#10B981', '#3B82F6', '#06B6D4', '#14B8A6', '#84CC16', '#6B7280'],
-                        borderWidth: 2, borderColor: '#ffffff'
+                        backgroundColor: ['#10B981', '#3B82F6', '#06B6D4', '#14B8A6', '#84CC16', '#64748B'],
+                        borderWidth: 2, 
+                        borderColor: '#ffffff'
                     }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: {size: 10} } } }, cutout: '65%' }
+                options: chartOptions
             });
             </text>
         }

@@ -1,32 +1,38 @@
 @model IEnumerable<PennyWise.Models.Transaction>
 
 @{
-    ViewData["Title"] = "Tüm İşlemleriniz";
+    ViewData["Title"] = "Hesap Ekstresi";
+    
+    var totalIncome = Model.Where(t => t.Category.Type == PennyWise.Models.TransactionType.Income).Sum(t => t.Amount);
+    var totalExpense = Model.Where(t => t.Category.Type == PennyWise.Models.TransactionType.Expense).Sum(t => t.Amount);
+    var netFlow = totalIncome - totalExpense;
 }
 
-<div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+<div class="container-fluid px-0">
+    <!-- Üst Başlık ve Yeni İşlem Ekleme -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom gap-3">
         <div>
-            <h1 class="h2 mb-0">Tüm İşlemleriniz</h1>
-            <p class="text-muted mb-0">Bugüne kadar gerçekleştirdiğiniz tüm gelir ve gider işlemlerinin dökümü.</p>
+            <span class="text-muted text-uppercase fw-bold tracking-wider small" style="font-size: 0.75rem; letter-spacing: 0.05em;">Hesap Geçmişi</span>
+            <h1 class="h2 mb-1">Hesap Ekstresi</h1>
+            <p class="text-muted mb-0 small">PennyWise cüzdanınıza yansıyan tüm finansal giriş ve çıkış hareketlerinin listesi.</p>
         </div>
         <div>
-            <a asp-action="Create" class="btn btn-primary fw-semibold">
-                <i class="fa-solid fa-plus me-2"></i>Yeni İşlem Ekle
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fa-solid fa-plus"></i> Yeni İşlem Kaydet
             </a>
         </div>
     </div>
 
     @if (!Model.Any())
     {
-        <div class="card text-center py-5">
+        <div class="card text-center py-5 shadow-sm">
             <div class="card-body">
-                <i class="fa-solid fa-folder-open fa-4x text-muted mb-3"></i>
-                <h3>Henüz Hiç İşlem Kaydı Yok</h3>
-                <p class="text-muted max-width-md mx-auto mb-4">
-                    Gelir veya gider ekleyerek bütçenizi yönetmeye başlayın.
+                <i class="fa-solid fa-folder-open fa-4x text-muted mb-3 opacity-50"></i>
+                <h3 class="fw-bold">Henüz Hiç İşlem Kaydı Yok</h3>
+                <p class="text-muted max-width-md mx-auto mb-4 small">
+                    Gelir veya gider işlemleri ekleyerek portföy hareketlerinizi takip etmeye başlayın.
                 </p>
-                <a asp-action="Create" class="btn btn-primary fw-semibold">
+                <a asp-action="Create" class="btn btn-primary fw-semibold px-4">
                     <i class="fa-solid fa-plus me-2"></i>İlk İşlemini Ekle
                 </a>
             </div>
@@ -34,76 +40,104 @@
     }
     else
     {
-        <!-- Özet Kartları -->
+        <!-- Bankacılık Özet Metrik Panelleri -->
         <div class="row g-3 mb-4">
-            <div class="col-md-6">
-                <div class="card p-3 d-flex flex-row align-items-center justify-content-between">
-                    <div>
-                        <div class="text-muted small fw-semibold">Toplam Gelir Akışı</div>
-                        <div class="h4 mb-0 text-success fw-bold">
-                            @Model.Where(t => t.Category.Type == PennyWise.Models.TransactionType.Income).Sum(t => t.Amount).ToString("C2")
+            <!-- Toplam Giriş (Gelir) -->
+            <div class="col-md-4">
+                <div class="card p-3 border-start border-4 border-success">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-muted small fw-semibold uppercase tracking-wider mb-1" style="font-size: 0.75rem;">Toplam Para Girişi</div>
+                            <div class="h3 mb-0 text-success fw-bold">@totalIncome.ToString("C2")</div>
                         </div>
-                    </div>
-                    <div class="bg-light p-3 rounded-circle">
-                        <i class="fa-solid fa-circle-arrow-up text-success fa-lg"></i>
+                        <div class="p-2 bg-success-subtle text-success rounded-circle" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fa-solid fa-arrow-down-long"></i>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="card p-3 d-flex flex-row align-items-center justify-content-between">
-                    <div>
-                        <div class="text-muted small fw-semibold">Toplam Gider Çıkışı</div>
-                        <div class="h4 mb-0 text-danger fw-bold">
-                            @Model.Where(t => t.Category.Type == PennyWise.Models.TransactionType.Expense).Sum(t => t.Amount).ToString("C2")
+
+            <!-- Toplam Çıkış (Gider) -->
+            <div class="col-md-4">
+                <div class="card p-3 border-start border-4 border-danger">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-muted small fw-semibold uppercase tracking-wider mb-1" style="font-size: 0.75rem;">Toplam Para Çıkışı</div>
+                            <div class="h3 mb-0 text-danger fw-bold">@totalExpense.ToString("C2")</div>
+                        </div>
+                        <div class="p-2 bg-danger-subtle text-danger rounded-circle" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fa-solid fa-arrow-up-long"></i>
                         </div>
                     </div>
-                    <div class="bg-light p-3 rounded-circle">
-                        <i class="fa-solid fa-circle-arrow-down text-danger fa-lg"></i>
+                </div>
+            </div>
+
+            <!-- Net Dönem Akışı -->
+            <div class="col-md-4">
+                <div class="card p-3 border-start border-4 @(netFlow >= 0 ? "border-primary" : "border-warning")">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-muted small fw-semibold uppercase tracking-wider mb-1" style="font-size: 0.75rem;">Dönem İçi Net Akış</div>
+                            <div class="h3 mb-0 fw-bold @(netFlow >= 0 ? "text-primary" : "text-warning")">@netFlow.ToString("C2")</div>
+                        </div>
+                        <div class="p-2 @(netFlow >= 0 ? "bg-primary-subtle text-primary" : "bg-warning-subtle text-warning") rounded-circle" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fa-solid fa-wallet"></i>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- İşlemler Tablosu -->
-        <div class="card">
+        <!-- Ekstre Tablosu -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-transparent py-3 border-0">
+                <span class="fw-bold text-muted small text-uppercase tracking-wider"><i class="fa-solid fa-list me-2"></i>İşlem Hareket Detayları</span>
+            </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table align-middle">
                         <thead>
                             <tr>
-                                <th>Tarih</th>
+                                <th>Valör / Tarih</th>
                                 <th>Kategori</th>
-                                <th>Açıklama</th>
-                                <th>Tür</th>
+                                <th>Açıklama / Referans</th>
+                                <th>İşlem Türü</th>
                                 <th class="text-end">Tutar</th>
-                                <th class="text-end" style="width: 180px;">İşlemler</th>
+                                <th class="text-end" style="width: 160px;">İşlemler</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var item in Model)
                             {
+                                var isIncome = item.Category.Type == PennyWise.Models.TransactionType.Income;
                                 <tr>
-                                    <td class="text-muted">@item.Date.ToString("dd.MM.yyyy")</td>
+                                    <td class="text-muted small">@item.Date.ToString("dd.MM.yyyy")</td>
                                     <td><span class="badge bg-light text-dark border">@item.Category.Name</span></td>
-                                    <td class="fw-semibold">@(string.IsNullOrEmpty(item.Description) ? "-" : item.Description)</td>
+                                    <td class="fw-bold text-dark">@(string.IsNullOrEmpty(item.Description) ? "Düzenli Hesap Hareketi" : item.Description)</td>
                                     <td>
-                                        @if (item.Category.Type == PennyWise.Models.TransactionType.Income)
+                                        @if (isIncome)
                                         {
-                                            <span class="badge bg-success-subtle text-success border border-success-subtle">Gelir</span>
+                                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-20">Gelir</span>
                                         }
                                         else
                                         {
-                                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Gider</span>
+                                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-20">Gider</span>
                                         }
                                     </td>
-                                    <td class="text-end fw-bold @(item.Category.Type == PennyWise.Models.TransactionType.Income ? "text-success" : "text-danger")">
-                                        @(item.Category.Type == PennyWise.Models.TransactionType.Income ? "+" : "-")@item.Amount.ToString("C2")
+                                    <td class="text-end fw-bold @(isIncome ? "text-success" : "text-danger")">
+                                        @(isIncome ? "+" : "-")@item.Amount.ToString("C2")
                                     </td>
                                     <td class="text-end">
-                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning me-1">Düzenle</a>
-                                        <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="return confirm('Bu işlemi silmek istediğinizden emin misiniz?');">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">Sil</button>
-                                        </form>
+                                        <div class="d-flex justify-content-end gap-1">
+                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary py-1 px-2" title="Düzenle">
+                                                <i class="fa-solid fa-pen"></i>
+                                            </a>
+                                            <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="return confirm('Bu işlemi silmek istediğinizden emin misiniz?');">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger py-1 px-2" title="Sil">
+                                                    <i class="fa-solid fa-trash-can"></i>
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             }

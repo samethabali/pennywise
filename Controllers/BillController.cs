@@ -39,9 +39,19 @@ namespace PennyWise.Controllers
         // Yeni fatura oluşturma ekranı
         public async Task<IActionResult> Create()
         {
-            var categories = await _context.Categories.ToListAsync();
-            ViewBag.Categories = new SelectList(categories, "Id", "Name");
-            return View(new Bill { DueDate = DateTime.Now.AddDays(7) });
+            var faturaCategory = await _context.Categories.FirstOrDefaultAsync(c => c.Name == "Fatura" && c.Type == TransactionType.Expense);
+            if (faturaCategory == null)
+            {
+                faturaCategory = new Category { Name = "Fatura", Type = TransactionType.Expense };
+                _context.Categories.Add(faturaCategory);
+                await _context.SaveChangesAsync();
+            }
+
+            return View(new Bill 
+            { 
+                DueDate = DateTime.Now.AddDays(7),
+                CategoryId = faturaCategory.Id
+            });
         }
 
         // Yeni fatura oluşturma işlemi
@@ -54,6 +64,17 @@ namespace PennyWise.Controllers
 
             // UserId'yi otomatik ata
             bill.UserId = userId;
+
+            // Fatura kategorisini bul veya oluştur
+            var faturaCategory = await _context.Categories.FirstOrDefaultAsync(c => c.Name == "Fatura" && c.Type == TransactionType.Expense);
+            if (faturaCategory == null)
+            {
+                faturaCategory = new Category { Name = "Fatura", Type = TransactionType.Expense };
+                _context.Categories.Add(faturaCategory);
+                await _context.SaveChangesAsync();
+            }
+
+            bill.CategoryId = faturaCategory.Id;
 
             // Npgsql 8.x için timestamptz UTC zorunluluğu
             bill.DueDate = DateTime.SpecifyKind(bill.DueDate, DateTimeKind.Utc);
@@ -70,8 +91,6 @@ namespace PennyWise.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var categories = await _context.Categories.ToListAsync();
-            ViewBag.Categories = new SelectList(categories, "Id", "Name", bill.CategoryId);
             return View(bill);
         }
 

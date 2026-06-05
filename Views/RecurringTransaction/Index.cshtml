@@ -2,28 +2,83 @@
 @using PennyWise.Models
 
 @{
-    ViewData["Title"] = "Aboneliklerim";
+    ViewData["Title"] = "Düzenli Ödemeler";
+    
+    var activeCount = Model.Count(r => r.IsActive);
+    var monthlyExpenses = Model.Where(r => r.IsActive && r.Category?.Type == TransactionType.Expense).Sum(r => r.Amount);
+    var monthlyIncomes = Model.Where(r => r.IsActive && r.Category?.Type == TransactionType.Income).Sum(r => r.Amount);
 }
 
-<div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+<div class="container-fluid px-0">
+    <!-- Üst Başlık ve Yeni Talimat Oluşturma -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom gap-3">
         <div>
-            <h1 class="h2 mb-0">Aboneliklerim</h1>
-            <p class="text-muted mb-0">Tekrarlayan gelir ve giderlerinizi yönetin. Vadesi gelen işlemler otomatik olarak oluşturulur.</p>
+            <span class="text-muted text-uppercase fw-bold tracking-wider small" style="font-size: 0.75rem; letter-spacing: 0.05em;">Abonelik Planlayıcı</span>
+            <h1 class="h2 mb-1">Ödeme Talimatlarım</h1>
+            <p class="text-muted mb-0 small">Tekrarlayan periyodik harcama ve gelir işlemlerinizi buradan izleyin. Vade gününde otomatik yansır.</p>
         </div>
         <div>
-            <a asp-action="Create" class="btn btn-primary fw-semibold">
-                <i class="fa-solid fa-plus me-2"></i>Yeni Abonelik Ekle
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fa-solid fa-plus"></i> Yeni Talimat Tanımla
             </a>
         </div>
     </div>
 
+    <!-- Abonelik Metrikleri -->
+    <div class="row g-3 mb-4">
+        <!-- Aktif Talimat Sayısı -->
+        <div class="col-md-4">
+            <div class="card p-3 border-start border-4 border-primary">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold uppercase tracking-wider mb-1" style="font-size: 0.75rem;">Aktif Talimat Adedi</div>
+                        <div class="h3 mb-0 text-primary fw-bold">@activeCount Aktif</div>
+                    </div>
+                    <div class="p-2 bg-primary-subtle text-primary rounded-circle" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-rotate"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Aylık Toplam Otomatik Gider -->
+        <div class="col-md-4">
+            <div class="card p-3 border-start border-4 border-danger">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold uppercase tracking-wider mb-1" style="font-size: 0.75rem;">Aylık Otomatik Gider</div>
+                        <div class="h3 mb-0 text-danger fw-bold">@monthlyExpenses.ToString("C2")</div>
+                    </div>
+                    <div class="p-2 bg-danger-subtle text-danger rounded-circle" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-arrow-up-long"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Aylık Toplam Otomatik Gelir -->
+        <div class="col-md-4">
+            <div class="card p-3 border-start border-4 border-success">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold uppercase tracking-wider mb-1" style="font-size: 0.75rem;">Aylık Otomatik Gelir</div>
+                        <div class="h3 mb-0 text-success fw-bold">@monthlyIncomes.ToString("C2")</div>
+                    </div>
+                    <div class="p-2 bg-success-subtle text-success rounded-circle" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-arrow-down-long"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- İki Kolonlu Grid Düzeni -->
     <div class="row g-4">
-        <!-- Sol Kolon: Aktif Abonelikler -->
+        <!-- Sol Kolon: Aktif Ödeme Talimatları -->
         <div class="col-lg-8">
-            <div class="card glass-card border-0 shadow-sm mb-4">
-                <div class="card-header bg-transparent border-0 pt-4 pb-0 d-flex justify-content-between align-items-center">
-                    <span class="fw-semibold"><i class="fa-solid fa-rotate me-2 text-primary"></i>Aktif Abonelikler</span>
+            <div class="card shadow-sm h-100">
+                <div class="card-header py-3 bg-transparent d-flex justify-content-between align-items-center border-0">
+                    <span class="fw-bold text-dark"><i class="fa-solid fa-play text-primary me-2"></i>Aktif Talimatlar</span>
                     <span class="badge bg-primary rounded-pill">@Model.Count(r => r.IsActive) Aktif</span>
                 </div>
                 <div class="card-body p-0">
@@ -33,12 +88,12 @@
                             <table class="table align-middle">
                                 <thead>
                                     <tr>
-                                        <th>Açıklama</th>
+                                        <th>Talimat Tanımı</th>
                                         <th>Kategori</th>
                                         <th>Periyot</th>
                                         <th>Tutar</th>
-                                        <th>Sonraki Tarih</th>
-                                        <th class="text-end">İşlemler</th>
+                                        <th>Valör Tarihi</th>
+                                        <th class="text-end" style="width: 140px;">İşlemler</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -46,22 +101,13 @@
                                     {
                                         var isExpense = item.Category?.Type == TransactionType.Expense;
                                         <tr>
-                                            <td>
-                                                <div class="d-flex align-items-center gap-2">
-                                                    <div class="recurring-icon-badge @(isExpense ? "recurring-expense" : "recurring-income")">
-                                                        <i class="fa-solid @(isExpense ? "fa-arrow-up" : "fa-arrow-down") fa-sm"></i>
-                                                    </div>
-                                                    <div>
-                                                        <div class="fw-semibold">@item.Description</div>
-                                                    </div>
-                                                </div>
-                                            </td>
+                                            <td class="fw-bold text-dark">@item.Description</td>
                                             <td><span class="badge bg-light text-dark border">@item.Category?.Name</span></td>
                                             <td>
                                                 <span class="badge rounded-pill
-                                                    @(item.RecurrenceType == RecurrenceType.Daily ? "bg-info" :
-                                                      item.RecurrenceType == RecurrenceType.Weekly ? "bg-warning text-dark" :
-                                                      item.RecurrenceType == RecurrenceType.Monthly ? "bg-primary" : "bg-secondary")">
+                                                    @(item.RecurrenceType == RecurrenceType.Daily ? "bg-info bg-opacity-10 text-info border border-info border-opacity-20" :
+                                                      item.RecurrenceType == RecurrenceType.Weekly ? "bg-warning bg-opacity-10 text-warning border border-warning border-opacity-20" :
+                                                      item.RecurrenceType == RecurrenceType.Monthly ? "bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20" : "bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-20")">
                                                     @switch (item.RecurrenceType)
                                                     {
                                                         case RecurrenceType.Daily: @:Günlük
@@ -82,18 +128,18 @@
                                                 @{
                                                     var daysLeft = (item.NextOccurrenceDate.Date - DateTime.UtcNow.Date).Days;
                                                 }
-                                                <div class="small text-muted">@item.NextOccurrenceDate.ToString("dd.MM.yyyy")</div>
+                                                <div class="small text-muted mb-1">@item.NextOccurrenceDate.ToString("dd.MM.yyyy")</div>
                                                 @if (daysLeft <= 0)
                                                 {
                                                     <span class="badge bg-success bg-opacity-10 text-success small">Bugün</span>
                                                 }
                                                 else if (daysLeft <= 3)
                                                 {
-                                                    <span class="badge bg-warning bg-opacity-10 text-warning small">@daysLeft gün kaldı</span>
+                                                    <span class="badge bg-warning bg-opacity-10 text-warning small">@daysLeft gün</span>
                                                 }
                                                 else
                                                 {
-                                                    <span class="badge bg-light text-muted small">@daysLeft gün kaldı</span>
+                                                    <span class="badge bg-light text-muted border small">@daysLeft gün</span>
                                                 }
                                             </td>
                                             <td class="text-end">
@@ -109,7 +155,7 @@
                                                     <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline"
                                                           onsubmit="return confirm('Bu aboneliği silmek istediğinizden emin misiniz?');">
                                                         <button type="submit" class="btn btn-sm btn-outline-danger py-1 px-2" title="Sil">
-                                                            <i class="fa-solid fa-trash"></i>
+                                                            <i class="fa-solid fa-trash-can"></i>
                                                         </button>
                                                     </form>
                                                 </div>
@@ -123,71 +169,52 @@
                     else
                     {
                         <div class="text-center text-muted py-5 px-3">
-                            <i class="fa-solid fa-rotate fa-3x text-muted mb-3 opacity-50"></i>
-                            <h5 class="fw-bold text-dark">Aktif Abonelik Yok</h5>
-                            <p class="small text-muted mb-4">Henüz tekrarlayan bir gelir veya gider tanımlamadınız.</p>
-                            <a asp-action="Create" class="btn btn-primary rounded-pill px-4 shadow-sm">
-                                <i class="fa-solid fa-plus me-2"></i>İlk Aboneliği Ekle
-                            </a>
+                            <i class="fa-solid fa-rotate fa-4x text-muted mb-3 opacity-50"></i>
+                            <h5 class="fw-bold text-dark">Aktif Talimat Yok</h5>
+                            <p class="small text-muted mb-0">Henüz periyodik tekrarlanan bir para hareketi tanımlamadınız.</p>
                         </div>
                     }
                 </div>
             </div>
         </div>
 
-        <!-- Sağ Kolon: Duraklatılmış + Bilgi Kartı -->
+        <!-- Sağ Kolon: Durdurulmuş Talimatlar -->
         <div class="col-lg-4">
-            <!-- Özet Bilgi Kartı -->
-            <div class="card glass-card border-0 shadow-sm mb-4">
-                <div class="card-body text-center py-4">
-                    <div class="mb-3">
-                        <i class="fa-solid fa-rotate fa-3x text-primary opacity-75"></i>
-                    </div>
-                    <h3 class="fw-bold mb-0">@Model.Count(r => r.IsActive)</h3>
-                    <p class="text-muted small mb-3">Aktif Abonelik</p>
-                    <div class="d-flex justify-content-around border-top pt-3 border-opacity-10">
-                        <div class="text-center">
-                            <div class="fw-bold text-danger fs-5">@Model.Where(r => r.IsActive && r.Category?.Type == TransactionType.Expense).Sum(r => r.Amount).ToString("C0")</div>
-                            <div class="text-muted" style="font-size: 0.8rem;">Aylık Gider</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="fw-bold text-success fs-5">@Model.Where(r => r.IsActive && r.Category?.Type == TransactionType.Income).Sum(r => r.Amount).ToString("C0")</div>
-                            <div class="text-muted" style="font-size: 0.8rem;">Aylık Gelir</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Duraklatılmış Abonelikler -->
-            <div class="card glass-card border-0 shadow-sm">
-                <div class="card-header bg-transparent border-0 pt-4 pb-0 d-flex justify-content-between align-items-center">
-                    <span class="fw-semibold"><i class="fa-solid fa-pause me-2 text-warning"></i>Duraklatılan</span>
-                    <span class="badge bg-warning text-dark rounded-pill">@Model.Count(r => !r.IsActive)</span>
+            <div class="card shadow-sm h-100">
+                <div class="card-header py-3 bg-transparent d-flex justify-content-between align-items-center border-0">
+                    <span class="fw-bold text-dark"><i class="fa-solid fa-pause text-warning me-2"></i>Durdurulanlar</span>
+                    <span class="badge bg-warning text-dark rounded-pill">@Model.Count(r => !r.IsActive) Adet</span>
                 </div>
                 <div class="card-body p-0">
                     @if (Model.Any(r => !r.IsActive))
                     {
                         <div class="table-responsive">
                             <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Açıklama</th>
+                                        <th class="text-end" style="width: 120px;">İşlemler</th>
+                                    </tr>
+                                </thead>
                                 <tbody>
                                     @foreach (var item in Model.Where(r => !r.IsActive))
                                     {
                                         <tr class="opacity-75">
                                             <td>
                                                 <div class="fw-semibold text-muted text-decoration-line-through">@item.Description</div>
-                                                <small class="text-muted">@item.Amount.ToString("C2")</small>
+                                                <span class="small text-muted fw-bold">@item.Amount.ToString("C2")</span>
                                             </td>
                                             <td class="text-end">
                                                 <div class="d-flex justify-content-end gap-1">
                                                     <form asp-action="ToggleActive" asp-route-id="@item.Id" method="post" class="d-inline">
-                                                        <button type="submit" class="btn btn-sm btn-outline-success py-1 px-2" title="Yeniden Aktifleştir">
+                                                        <button type="submit" class="btn btn-sm btn-outline-success py-1 px-2" title="Yeniden Başlat">
                                                             <i class="fa-solid fa-play"></i>
                                                         </button>
                                                     </form>
                                                     <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline"
                                                           onsubmit="return confirm('Bu aboneliği kalıcı olarak silmek istiyor musunuz?');">
                                                         <button type="submit" class="btn btn-sm btn-outline-danger py-1 px-2" title="Sil">
-                                                            <i class="fa-solid fa-trash"></i>
+                                                            <i class="fa-solid fa-trash-can"></i>
                                                         </button>
                                                     </form>
                                                 </div>
@@ -200,9 +227,10 @@
                     }
                     else
                     {
-                        <div class="text-center text-muted py-4">
-                            <i class="fa-solid fa-circle-check fa-2x mb-2 text-success"></i>
-                            <p class="small mb-0">Duraklatılmış abonelik yok.</p>
+                        <div class="text-center text-muted py-5 px-3">
+                            <i class="fa-solid fa-circle-check fa-3x text-success mb-2 opacity-75"></i>
+                            <h5 class="fw-bold text-dark">Durdurulan Kayıt Yok</h5>
+                            <p class="small text-muted mb-0">Pasif durumda bekleyen ödeme talimatınız bulunmuyor.</p>
                         </div>
                     }
                 </div>

@@ -1,37 +1,73 @@
 @model PennyWise.Models.SavingsGoal
 
 @{
-    ViewData["Title"] = "Hedef Güncelle";
+    ViewData["Title"] = "Kasayı Düzenle";
 }
 
-<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
-    <div class="card p-4 shadow-sm" style="max-width: 500px; width: 100%;">
-        <div class="card-header bg-transparent border-0 text-center mb-3">
-            <h2 class="fw-bold mb-0">Hedef Güncelle</h2>
-            <p class="text-muted small">Hedefin ismini veya miktarını güncelleyin.</p>
-        </div>
-        <div class="card-body p-0">
-            <form asp-action="Edit" method="post">
-                <input type="hidden" asp-for="Id" />
-                <input type="hidden" asp-for="UserId" />
-                <input type="hidden" asp-for="TargetDate" />
-                <input type="hidden" asp-for="CurrentAmount" />
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-header py-3 bg-transparent">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-pen text-primary fa-lg"></i>
+                    <h5 class="mb-0 fw-bold">Kasayı Düzenle</h5>
+                </div>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small mb-4">Birikim kasanızın ismini, hedeflenen tutarı ve vade tarihini güncelleyin.</p>
 
-                <div class="mb-3">
-                    <label asp-for="Title" class="form-label">Hedef Adı</label>
-                    <input asp-for="Title" class="form-control" placeholder="Örn: Tatil, Araba" required />
-                    <span asp-validation-for="Title" class="text-danger small"></span>
-                </div>
-                <div class="mb-4">
-                    <label asp-for="TargetAmount" class="form-label">Hedef Miktar (₺)</label>
-                    <input asp-for="TargetAmount" type="number" step="0.01" class="form-control" placeholder="Örn: 50000" required />
-                    <span asp-validation-for="TargetAmount" class="text-danger small"></span>
-                </div>
-                <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-primary fw-semibold py-2">Değişiklikleri Kaydet</button>
-                    <a asp-action="Index" class="btn btn-outline-secondary fw-semibold py-2">İptal</a>
-                </div>
-            </form>
+                <form asp-action="Edit" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+                    <input type="hidden" asp-for="Id" />
+
+                    <!-- Kasa İsmi -->
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label text-dark fw-semibold">Birikim Kasa Adı</label>
+                        <input asp-for="Title" class="form-control" placeholder="Örn: Yeni Bilgisayar, Acil Durum Fonu, Seyahat" required />
+                        <span asp-validation-for="Title" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Hedef ve Biriken -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="TargetAmount" class="form-label text-dark fw-semibold">Hedeflenen Tutar</label>
+                            <div class="input-group">
+                                <input asp-for="TargetAmount" type="number" step="0.01" class="form-control" placeholder="0.00" required />
+                                <span class="input-group-text bg-light border-start-0">₺</span>
+                            </div>
+                            <span asp-validation-for="TargetAmount" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="CurrentAmount" class="form-label text-dark fw-semibold">Biriken Tutar</label>
+                            <div class="input-group">
+                                <input asp-for="CurrentAmount" type="number" step="0.01" class="form-control" placeholder="0.00" required />
+                                <span class="input-group-text bg-light border-start-0">₺</span>
+                            </div>
+                            <span asp-validation-for="CurrentAmount" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <!-- Vade Tarihi -->
+                    <div class="mb-4">
+                        <label asp-for="TargetDate" class="form-label text-dark fw-semibold">Hedef Vade Tarihi</label>
+                        <input asp-for="TargetDate" class="form-control" type="date" value="@Model.TargetDate.ToString("yyyy-MM-dd")" required />
+                        <span asp-validation-for="TargetDate" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Butonlar -->
+                    <div class="d-flex gap-2 justify-content-end border-top pt-3">
+                        <a asp-action="Index" class="btn btn-outline-primary px-3">İptal</a>
+                        <button type="submit" class="btn btn-primary px-4 fw-semibold">
+                            <i class="fa-solid fa-floppy-disk"></i> Değişiklikleri Kaydet
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
