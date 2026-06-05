@@ -5,329 +5,489 @@
 }
 
 <style>
-    .tx-create-wrapper {
-        max-width: 640px;
-        margin: 0 auto;
-        padding: 8px 0 40px;
+    .tx-page { display: grid; grid-template-columns: 1fr 420px; gap: 28px; max-width: 1000px; margin: 0 auto; padding-bottom: 40px; }
+
+    /* ── SOL: ÖNIZLEME KARTI ── */
+    .tx-preview-panel { display: flex; flex-direction: column; gap: 20px; }
+
+    .tx-preview-card {
+        background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 60%, #1e1b4b 100%);
+        border-radius: 24px;
+        padding: 32px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        min-height: 220px;
+        box-shadow: 0 20px 60px rgba(15,23,42,0.3);
     }
 
-    .tx-page-header {
-        margin-bottom: 28px;
+    .tx-preview-card::before {
+        content: '';
+        position: absolute;
+        top: -60px; right: -60px;
+        width: 200px; height: 200px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(99,102,241,0.3) 0%, transparent 70%);
     }
 
-    .tx-page-header h1 {
-        font-size: 1.6rem;
+    .tx-preview-card::after {
+        content: '';
+        position: absolute;
+        bottom: -40px; left: -40px;
+        width: 160px; height: 160px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(59,130,246,0.2) 0%, transparent 70%);
+    }
+
+    .preview-type-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 14px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        margin-bottom: 20px;
+        position: relative; z-index: 1;
+    }
+    .preview-type-badge.income { background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
+    .preview-type-badge.expense { background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+    .preview-type-badge.neutral { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.15); }
+
+    .preview-amount {
+        font-size: 3rem;
         font-weight: 800;
-        color: var(--text-main, #0f172a);
-        margin: 0 0 6px;
+        position: relative; z-index: 1;
+        line-height: 1;
+        margin-bottom: 6px;
+        background: linear-gradient(135deg, #ffffff, #93c5fd);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        transition: all 0.3s ease;
+    }
+
+    .preview-desc {
+        font-size: 0.88rem;
+        color: rgba(255,255,255,0.5);
+        position: relative; z-index: 1;
+        margin-bottom: 24px;
+        min-height: 20px;
+    }
+
+    .preview-meta {
+        display: flex;
+        gap: 20px;
+        position: relative; z-index: 1;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        padding-top: 18px;
+    }
+
+    .preview-meta-item .label { font-size: 10px; text-transform: uppercase; color: rgba(255,255,255,0.4); letter-spacing: 0.5px; margin-bottom: 3px; }
+    .preview-meta-item .value { font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,0.85); }
+
+    /* Info kutuları */
+    .tx-info-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 20px 22px;
+    }
+
+    .tx-info-box .info-title {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #94a3b8;
+        letter-spacing: 0.5px;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .tx-info-box .info-title i { color: #3b82f6; }
+
+    .tx-tip { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+    .tx-tip:last-child { margin-bottom: 0; }
+    .tx-tip .tip-dot { width: 6px; height: 6px; border-radius: 50%; background: #3b82f6; flex-shrink: 0; margin-top: 6px; }
+    .tx-tip p { font-size: 0.8rem; color: #64748b; margin: 0; line-height: 1.5; }
+
+    /* ── SAĞ: FORM ── */
+    .tx-form-panel {
+        background: #ffffff;
+        border: 1px solid #e8edf5;
+        border-radius: 24px;
+        box-shadow: 0 4px 24px rgba(15,23,42,0.06);
+        overflow: hidden;
+        align-self: start;
+    }
+
+    .tx-form-header {
+        padding: 24px 28px 20px;
+        border-bottom: 1px solid #f1f5f9;
+        background: linear-gradient(135deg, #f8faff 0%, #ffffff 100%);
+    }
+
+    .tx-form-header h2 {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin: 0 0 4px;
         display: flex;
         align-items: center;
         gap: 10px;
     }
 
-    .tx-page-header h1 .h-icon {
-        width: 38px; height: 38px;
+    .tx-form-header h2 span.hico {
+        width: 32px; height: 32px;
         background: linear-gradient(135deg, #3b82f6, #6366f1);
-        border-radius: 10px;
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
         color: white;
-        font-size: 16px;
+        font-size: 13px;
         flex-shrink: 0;
-        box-shadow: 0 4px 12px rgba(59,130,246,0.35);
     }
 
-    .tx-page-header p {
-        color: #64748b;
-        font-size: 0.875rem;
-        margin: 0;
-        padding-left: 48px;
-    }
+    .tx-form-header p { font-size: 0.8rem; color: #94a3b8; margin: 0; padding-left: 42px; }
 
-    .tx-card {
-        background: #ffffff;
-        border: 1px solid #e8edf5;
-        border-radius: 20px;
-        box-shadow: 0 4px 24px rgba(15,23,42,0.06), 0 1px 4px rgba(15,23,42,0.04);
-        overflow: hidden;
-    }
+    .tx-form-body { padding: 24px 28px; }
 
-    .tx-card-body { padding: 32px; }
+    /* Field */
+    .f-group { margin-bottom: 20px; }
 
-    /* Field Group */
-    .tx-field { margin-bottom: 22px; }
-
-    .tx-field label {
+    .f-label {
         display: flex;
         align-items: center;
         gap: 6px;
-        font-size: 0.82rem;
+        font-size: 0.78rem;
         font-weight: 700;
-        color: #374151;
-        margin-bottom: 8px;
-        letter-spacing: 0.2px;
+        color: #475569;
         text-transform: uppercase;
+        letter-spacing: 0.3px;
+        margin-bottom: 8px;
     }
 
-    .tx-field label i {
-        color: #3b82f6;
+    .f-label i { color: #6366f1; font-size: 11px; }
+
+    .f-wrap { position: relative; }
+
+    .f-ico {
+        position: absolute;
+        left: 12px; top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        font-size: 13px;
+        pointer-events: none;
+    }
+
+    .f-sfx {
+        position: absolute;
+        right: 12px; top: 50%;
+        transform: translateY(-50%);
         font-size: 12px;
+        font-weight: 700;
+        color: #6366f1;
+        pointer-events: none;
     }
 
-    /* Select */
-    .tx-select {
+    .f-input, .f-select {
         width: 100%;
-        padding: 13px 16px;
-        border: 1.5px solid #e2e8f0;
-        border-radius: 12px;
-        font-size: 0.92rem;
+        padding: 12px 12px 12px 36px;
+        border: 1.5px solid #e8edf5;
+        border-radius: 10px;
+        font-size: 0.88rem;
         color: #0f172a;
-        background: #f8fafc;
-        transition: all 0.2s ease;
+        background: #fafbfc;
         outline: none;
+        transition: all 0.2s;
+        box-sizing: border-box;
+    }
+
+    .f-select {
         appearance: none;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
         background-repeat: no-repeat;
-        background-position: right 14px center;
+        background-position: right 12px center;
         cursor: pointer;
     }
 
-    .tx-select:focus {
-        border-color: #3b82f6;
-        background-color: #ffffff;
-        box-shadow: 0 0 0 4px rgba(59,130,246,0.1);
-    }
-
-    /* Input with icon */
-    .tx-input-wrap { position: relative; }
-
-    .tx-input-wrap .tx-icon {
-        position: absolute;
-        left: 14px; top: 50%;
-        transform: translateY(-50%);
-        font-size: 13px;
-        color: #94a3b8;
-        pointer-events: none;
-        z-index: 1;
-    }
-
-    .tx-input-wrap .tx-suffix {
-        position: absolute;
-        right: 14px; top: 50%;
-        transform: translateY(-50%);
-        font-size: 13px;
-        font-weight: 700;
-        color: #3b82f6;
-        pointer-events: none;
-    }
-
-    .tx-input {
-        width: 100%;
-        padding: 13px 40px 13px 40px;
-        border: 1.5px solid #e2e8f0;
-        border-radius: 12px;
-        font-size: 0.92rem;
-        color: #0f172a;
-        background: #f8fafc;
-        transition: all 0.2s ease;
-        outline: none;
-        box-sizing: border-box;
-    }
-
-    .tx-input:focus {
-        border-color: #3b82f6;
+    .f-input:focus, .f-select:focus {
+        border-color: #6366f1;
         background: #ffffff;
-        box-shadow: 0 0 0 4px rgba(59,130,246,0.1);
+        box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
     }
 
-    .tx-input::placeholder { color: #94a3b8; }
+    .f-input::placeholder { color: #cbd5e1; }
 
-    /* Textarea */
-    .tx-textarea {
+    .f-textarea {
         width: 100%;
-        padding: 13px 16px;
-        border: 1.5px solid #e2e8f0;
-        border-radius: 12px;
-        font-size: 0.92rem;
+        padding: 12px;
+        border: 1.5px solid #e8edf5;
+        border-radius: 10px;
+        font-size: 0.88rem;
         color: #0f172a;
-        background: #f8fafc;
-        transition: all 0.2s ease;
+        background: #fafbfc;
         outline: none;
+        transition: all 0.2s;
         box-sizing: border-box;
-        resize: vertical;
-        min-height: 90px;
+        resize: none;
+        height: 80px;
         font-family: inherit;
     }
 
-    .tx-textarea:focus {
-        border-color: #3b82f6;
+    .f-textarea:focus {
+        border-color: #6366f1;
         background: #ffffff;
-        box-shadow: 0 0 0 4px rgba(59,130,246,0.1);
+        box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
     }
 
-    .tx-textarea::placeholder { color: #94a3b8; }
+    .f-textarea::placeholder { color: #cbd5e1; }
 
-    /* Row fields */
-    .tx-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .f-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
-    /* Divider */
-    .tx-divider {
-        height: 1px;
-        background: #f1f5f9;
-        margin: 28px 0 24px;
-    }
+    .f-divider { height: 1px; background: #f1f5f9; margin: 22px 0 20px; }
 
-    /* Buttons */
-    .tx-actions {
-        display: flex;
-        gap: 12px;
-        justify-content: flex-end;
-    }
+    /* Actions */
+    .f-actions { display: flex; flex-direction: column; gap: 10px; }
 
-    .tx-btn-cancel {
-        padding: 12px 24px;
-        border: 1.5px solid #e2e8f0;
-        border-radius: 12px;
-        background: transparent;
-        color: #64748b;
-        font-size: 0.88rem;
-        font-weight: 600;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        transition: all 0.2s ease;
-        cursor: pointer;
-    }
-
-    .tx-btn-cancel:hover {
-        border-color: #cbd5e1;
-        background: #f8fafc;
-        color: #374151;
-    }
-
-    .tx-btn-save {
-        padding: 12px 28px;
+    .btn-save-tx {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #6366f1 0%, #3b82f6 100%);
+        color: white;
         border: none;
         border-radius: 12px;
-        background: linear-gradient(135deg, #3b82f6, #6366f1);
-        color: white;
-        font-size: 0.88rem;
+        font-size: 0.9rem;
         font-weight: 700;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
         cursor: pointer;
-        transition: all 0.2s ease;
-        box-shadow: 0 4px 14px rgba(59,130,246,0.35);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 4px 16px rgba(99,102,241,0.4);
+        transition: all 0.2s;
         letter-spacing: 0.2px;
     }
 
-    .tx-btn-save:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(59,130,246,0.45);
+    .btn-save-tx:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(99,102,241,0.5); }
+
+    .btn-cancel-tx {
+        width: 100%;
+        padding: 12px;
+        background: transparent;
+        color: #64748b;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.2s;
     }
 
-    .tx-btn-save:active { transform: translateY(0); }
+    .btn-cancel-tx:hover { background: #f8fafc; border-color: #cbd5e1; color: #374151; }
 
-    .text-danger { color: #ef4444 !important; font-size: 0.78rem; margin-top: 5px; display: block; }
+    .v-err { color: #ef4444 !important; font-size: 0.75rem; margin-top: 4px; display: block; }
 
-    @@media (max-width: 576px) {
-        .tx-row { grid-template-columns: 1fr; }
-        .tx-card-body { padding: 20px; }
-        .tx-actions { flex-direction: column-reverse; }
-        .tx-btn-cancel, .tx-btn-save { width: 100%; justify-content: center; }
+    @@media (max-width: 900px) {
+        .tx-page { grid-template-columns: 1fr; }
+        .tx-preview-panel { order: 2; }
+        .tx-form-panel { order: 1; }
+    }
+    @@media (max-width: 480px) {
+        .f-row { grid-template-columns: 1fr; }
     }
 </style>
 
-<div class="tx-create-wrapper">
+<div class="tx-page">
 
-    <div class="tx-page-header">
-        <h1>
-            <div class="h-icon"><i class="fa-solid fa-plus"></i></div>
-            Yeni İşlem Kaydet
-        </h1>
-        <p>Cüzdanınıza yeni bir gelir akışı veya gider ödemesi tanımlayın. Tüm alanları eksiksiz doldurun.</p>
+    <!-- ── SOL: CANLI ÖNİZLEME ── -->
+    <div class="tx-preview-panel">
+
+        <div class="tx-preview-card">
+            <div class="preview-type-badge neutral" id="prev-badge">
+                <i class="fa-solid fa-circle-question"></i>
+                <span>Kategori Seçilmedi</span>
+            </div>
+            <div class="preview-amount" id="prev-amount">₺0,00</div>
+            <div class="preview-desc" id="prev-desc">Açıklama giriniz...</div>
+            <div class="preview-meta">
+                <div class="preview-meta-item">
+                    <div class="label">Tarih</div>
+                    <div class="value" id="prev-date">—</div>
+                </div>
+                <div class="preview-meta-item">
+                    <div class="label">Kategori</div>
+                    <div class="value" id="prev-cat">—</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tx-info-box">
+            <div class="info-title"><i class="fa-solid fa-shield-halved"></i> Güvenli İşlem Kuralları</div>
+            <div class="tx-tip">
+                <div class="tip-dot"></div>
+                <p>Gider eklemek için net bakiyenizin yeterli olması gerekir.</p>
+            </div>
+            <div class="tx-tip">
+                <div class="tip-dot"></div>
+                <p>Bütçe limitinizi aşan harcamalar sistem tarafından engellenir.</p>
+            </div>
+            <div class="tx-tip">
+                <div class="tip-dot"></div>
+                <p>Fatura ödemeleri otomatik olarak gider olarak kaydedilir.</p>
+            </div>
+        </div>
     </div>
 
-    <div class="tx-card">
-        <div class="tx-card-body">
+    <!-- ── SAĞ: FORM ── -->
+    <div class="tx-form-panel">
+        <div class="tx-form-header">
+            <h2>
+                <span class="hico"><i class="fa-solid fa-plus"></i></span>
+                Yeni İşlem Kaydet
+            </h2>
+            <p>Gelir akışı veya gider ödemesi tanımlayın.</p>
+        </div>
+
+        <div class="tx-form-body">
             <form asp-action="Create" method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+                <div asp-validation-summary="ModelOnly" class="v-err mb-3" role="alert"></div>
 
                 <!-- Kategori -->
-                <div class="tx-field">
-                    <label asp-for="CategoryId">
+                <div class="f-group">
+                    <label class="f-label" asp-for="CategoryId">
                         <i class="fa-solid fa-tag"></i> Grup / Kategori
                     </label>
-                    <select asp-for="CategoryId" class="tx-select" asp-items="ViewBag.Categories">
-                        <option value="">-- Kategori Seçin --</option>
-                    </select>
-                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                    <div class="f-wrap">
+                        <i class="fa-solid fa-layer-group f-ico"></i>
+                        <select asp-for="CategoryId" class="f-select" asp-items="ViewBag.Categories" id="cat-select">
+                            <option value="">-- Kategori Seçin --</option>
+                        </select>
+                    </div>
+                    <span asp-validation-for="CategoryId" class="v-err"></span>
                 </div>
 
-                <!-- Tutar + Tarih yan yana -->
-                <div class="tx-row">
-                    <div class="tx-field">
-                        <label asp-for="Amount">
-                            <i class="fa-solid fa-turkish-lira-sign"></i> Tutar
+                <!-- Tutar + Tarih -->
+                <div class="f-row">
+                    <div class="f-group">
+                        <label class="f-label" asp-for="Amount">
+                            <i class="fa-solid fa-coins"></i> Tutar
                         </label>
-                        <div class="tx-input-wrap">
-                            <i class="fa-solid fa-coins tx-icon"></i>
-                            <input asp-for="Amount"
-                                   type="number"
-                                   step="0.01"
-                                   class="tx-input"
-                                   placeholder="0.00"
-                                   required />
-                            <span class="tx-suffix">₺</span>
+                        <div class="f-wrap">
+                            <i class="fa-solid fa-coins f-ico"></i>
+                            <input asp-for="Amount" type="number" step="0.01"
+                                   class="f-input" placeholder="0.00"
+                                   id="amt-input" required style="padding-right:32px;" />
+                            <span class="f-sfx">₺</span>
                         </div>
-                        <span asp-validation-for="Amount" class="text-danger"></span>
+                        <span asp-validation-for="Amount" class="v-err"></span>
                     </div>
 
-                    <div class="tx-field">
-                        <label asp-for="Date">
-                            <i class="fa-solid fa-calendar-days"></i> İşlem Tarihi
+                    <div class="f-group">
+                        <label class="f-label" asp-for="Date">
+                            <i class="fa-regular fa-calendar"></i> Tarih
                         </label>
-                        <div class="tx-input-wrap">
-                            <i class="fa-regular fa-calendar tx-icon"></i>
-                            <input asp-for="Date"
-                                   type="date"
-                                   class="tx-input"
-                                   required />
+                        <div class="f-wrap">
+                            <i class="fa-regular fa-calendar f-ico"></i>
+                            <input asp-for="Date" type="date"
+                                   class="f-input" id="date-input" required />
                         </div>
-                        <span asp-validation-for="Date" class="text-danger"></span>
+                        <span asp-validation-for="Date" class="v-err"></span>
                     </div>
                 </div>
 
                 <!-- Açıklama -->
-                <div class="tx-field">
-                    <label asp-for="Description">
-                        <i class="fa-solid fa-file-lines"></i> Açıklama (Referans No / Detay)
+                <div class="f-group">
+                    <label class="f-label" asp-for="Description">
+                        <i class="fa-solid fa-file-lines"></i> Açıklama / Referans
                     </label>
-                    <textarea asp-for="Description"
-                              class="tx-textarea"
-                              rows="3"
+                    <textarea asp-for="Description" class="f-textarea"
+                              id="desc-input"
                               placeholder="Ödemenin detaylarını, faturasını veya referansını yazın..."></textarea>
-                    <span asp-validation-for="Description" class="text-danger"></span>
+                    <span asp-validation-for="Description" class="v-err"></span>
                 </div>
 
-                <div class="tx-divider"></div>
+                <div class="f-divider"></div>
 
-                <!-- Butonlar -->
-                <div class="tx-actions">
-                    <a asp-controller="Dashboard" asp-action="Index" class="tx-btn-cancel">
-                        <i class="fa-solid fa-xmark"></i> İptal
-                    </a>
-                    <button type="submit" class="tx-btn-save">
-                        <i class="fa-solid fa-check-double"></i> İşlemi Kaydet
+                <div class="f-actions">
+                    <button type="submit" class="btn-save-tx">
+                        <i class="fa-solid fa-check-double"></i>
+                        İşlemi Kaydet
                     </button>
+                    <a asp-controller="Dashboard" asp-action="Index" class="btn-cancel-tx">
+                        <i class="fa-solid fa-xmark"></i> İptal, Geri Dön
+                    </a>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const amtInput  = document.getElementById("amt-input");
+        const descInput = document.getElementById("desc-input");
+        const dateInput = document.getElementById("date-input");
+        const catSelect = document.getElementById("cat-select");
+
+        const prevAmount = document.getElementById("prev-amount");
+        const prevDesc   = document.getElementById("prev-desc");
+        const prevDate   = document.getElementById("prev-date");
+        const prevCat    = document.getElementById("prev-cat");
+        const prevBadge  = document.getElementById("prev-badge");
+
+        function updatePreview() {
+            // Tutar
+            const amt = parseFloat(amtInput.value) || 0;
+            prevAmount.textContent = amt.toLocaleString("tr-TR", { style: "currency", currency: "TRY" });
+
+            // Açıklama
+            prevDesc.textContent = descInput.value.trim() || "Açıklama giriniz...";
+
+            // Tarih
+            if (dateInput.value) {
+                const d = new Date(dateInput.value);
+                prevDate.textContent = d.toLocaleDateString("tr-TR", { day:"2-digit", month:"long", year:"numeric" });
+            } else {
+                prevDate.textContent = "—";
+            }
+
+            // Kategori + badge
+            const selOpt = catSelect.options[catSelect.selectedIndex];
+            if (selOpt && selOpt.value) {
+                prevCat.textContent = selOpt.text;
+                const catText = selOpt.text.toLowerCase();
+                const isIncome = catText.includes("maaş") || catText.includes("gelir") || catText.includes("ücret") || catText.includes("kira gel");
+                prevBadge.className = "preview-type-badge " + (isIncome ? "income" : "expense");
+                prevBadge.innerHTML = isIncome
+                    ? '<i class="fa-solid fa-arrow-trend-up"></i><span>Gelir</span>'
+                    : '<i class="fa-solid fa-arrow-trend-down"></i><span>Gider</span>';
+            } else {
+                prevCat.textContent = "—";
+                prevBadge.className = "preview-type-badge neutral";
+                prevBadge.innerHTML = '<i class="fa-solid fa-circle-question"></i><span>Kategori Seçilmedi</span>';
+            }
+        }
+
+        amtInput.addEventListener("input", updatePreview);
+        descInput.addEventListener("input", updatePreview);
+        dateInput.addEventListener("change", updatePreview);
+        catSelect.addEventListener("change", updatePreview);
+
+        updatePreview();
+    });
+</script>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

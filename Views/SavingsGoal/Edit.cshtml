@@ -2,68 +2,270 @@
 
 @{
     ViewData["Title"] = "Kasayı Düzenle";
+    var progress = Model.ProgressPercentage;
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-6 col-lg-5">
-        <div class="card shadow-sm">
-            <div class="card-header py-3 bg-transparent">
-                <div class="d-flex align-items-center gap-2">
-                    <i class="fa-solid fa-pen text-primary fa-lg"></i>
-                    <h5 class="mb-0 fw-bold">Kasayı Düzenle</h5>
+<style>
+    .sg-edit-wrapper { max-width: 700px; margin: 0 auto; padding-bottom: 40px; }
+
+    .sg-hero {
+        background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #1e1b4b 100%);
+        border-radius: 24px;
+        padding: 32px;
+        margin-bottom: 24px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .sg-hero::before {
+        content: '';
+        position: absolute; top: -80px; right: -80px;
+        width: 250px; height: 250px; border-radius: 50%;
+        background: radial-gradient(circle, rgba(139,92,246,0.25) 0%, transparent 70%);
+    }
+
+    .sg-hero-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; position: relative; z-index: 1; }
+
+    .sg-hero-title { font-size: 1.4rem; font-weight: 800; margin: 0; }
+    .sg-hero-sub { font-size: 0.82rem; color: rgba(255,255,255,0.5); margin: 4px 0 0; }
+
+    .sg-icon-big {
+        width: 56px; height: 56px;
+        background: rgba(139,92,246,0.25);
+        border: 1px solid rgba(139,92,246,0.4);
+        border-radius: 16px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 24px; color: #a78bfa;
+    }
+
+    .sg-progress-area { position: relative; z-index: 1; }
+    .sg-progress-label { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+    .sg-progress-label .pct { font-size: 2rem; font-weight: 800; color: #a78bfa; }
+    .sg-progress-label .amounts { font-size: 0.82rem; color: rgba(255,255,255,0.5); text-align: right; }
+    .sg-progress-label .amounts strong { color: rgba(255,255,255,0.85); display: block; font-size: 1rem; }
+
+    .sg-bar-track {
+        background: rgba(255,255,255,0.1);
+        border-radius: 999px;
+        height: 10px;
+        overflow: hidden;
+    }
+
+    .sg-bar-fill {
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #8b5cf6, #6366f1);
+        width: @(progress)%;
+        transition: width 0.5s ease;
+        box-shadow: 0 0 10px rgba(139,92,246,0.6);
+    }
+
+    /* Form Card */
+    .sg-form-card {
+        background: #ffffff;
+        border: 1px solid #e8edf5;
+        border-radius: 24px;
+        box-shadow: 0 4px 24px rgba(15,23,42,0.06);
+        overflow: hidden;
+    }
+
+    .sg-form-tabs {
+        display: flex;
+        border-bottom: 1px solid #f1f5f9;
+        padding: 0 24px;
+    }
+
+    .sg-tab {
+        padding: 16px 20px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #94a3b8;
+        border-bottom: 2px solid transparent;
+        cursor: default;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .sg-tab.active { color: #8b5cf6; border-bottom-color: #8b5cf6; }
+    .sg-tab i { font-size: 12px; }
+
+    .sg-form-body { padding: 28px 28px 24px; }
+
+    .g-field { margin-bottom: 20px; }
+
+    .g-label {
+        display: flex; align-items: center; gap: 6px;
+        font-size: 0.78rem; font-weight: 700;
+        color: #475569; text-transform: uppercase; letter-spacing: 0.3px;
+        margin-bottom: 8px;
+    }
+
+    .g-label i { color: #8b5cf6; font-size: 11px; }
+
+    .g-wrap { position: relative; }
+    .g-ico { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 13px; pointer-events: none; }
+    .g-sfx { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 12px; font-weight: 700; color: #8b5cf6; pointer-events: none; }
+
+    .g-input {
+        width: 100%; padding: 12px 36px 12px 36px;
+        border: 1.5px solid #e8edf5; border-radius: 10px;
+        font-size: 0.88rem; color: #0f172a; background: #fafbfc;
+        outline: none; transition: all 0.2s; box-sizing: border-box;
+    }
+
+    .g-input:focus { border-color: #8b5cf6; background: #fff; box-shadow: 0 0 0 3px rgba(139,92,246,0.12); }
+    .g-input::placeholder { color: #cbd5e1; }
+
+    .g-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .g-divider { height: 1px; background: #f1f5f9; margin: 22px 0 20px; }
+
+    .g-actions { display: flex; gap: 12px; justify-content: flex-end; }
+
+    .btn-sg-save {
+        padding: 12px 28px;
+        background: linear-gradient(135deg, #8b5cf6, #6366f1);
+        color: white; border: none; border-radius: 12px;
+        font-size: 0.88rem; font-weight: 700;
+        display: inline-flex; align-items: center; gap: 8px;
+        cursor: pointer; transition: all 0.2s;
+        box-shadow: 0 4px 14px rgba(139,92,246,0.4);
+    }
+
+    .btn-sg-save:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(139,92,246,0.5); }
+
+    .btn-sg-cancel {
+        padding: 12px 22px;
+        border: 1.5px solid #e2e8f0; border-radius: 12px;
+        background: transparent; color: #64748b;
+        font-size: 0.85rem; font-weight: 600;
+        text-decoration: none;
+        display: inline-flex; align-items: center; gap: 7px;
+        transition: all 0.2s;
+    }
+
+    .btn-sg-cancel:hover { background: #f8fafc; border-color: #cbd5e1; color: #374151; }
+
+    .v-err { color: #ef4444 !important; font-size: 0.75rem; margin-top: 4px; display: block; }
+
+    @@media (max-width: 576px) {
+        .g-row { grid-template-columns: 1fr; }
+        .g-actions { flex-direction: column-reverse; }
+    }
+</style>
+
+<div class="sg-edit-wrapper">
+
+    <!-- Hero — mevcut ilerleme göstergesi -->
+    <div class="sg-hero">
+        <div class="sg-hero-top">
+            <div>
+                <div class="sg-hero-title">@Model.Title</div>
+                <div class="sg-hero-sub">Birikim hedefini düzenle</div>
+            </div>
+            <div class="sg-icon-big">
+                <i class="fa-solid fa-bullseye"></i>
+            </div>
+        </div>
+        <div class="sg-progress-area">
+            <div class="sg-progress-label">
+                <span class="pct">%@progress</span>
+                <div class="amounts">
+                    <strong>@Model.CurrentAmount.ToString("C0") / @Model.TargetAmount.ToString("C0")</strong>
+                    Tamamlandı
                 </div>
             </div>
-            <div class="card-body">
-                <p class="text-muted small mb-4">Birikim kasanızın ismini, hedeflenen tutarı ve vade tarihini güncelleyin.</p>
-
-                <form asp-action="Edit" method="post">
-                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
-                    <input type="hidden" asp-for="Id" />
-
-                    <!-- Kasa İsmi -->
-                    <div class="mb-3">
-                        <label asp-for="Title" class="form-label text-dark fw-semibold">Birikim Kasa Adı</label>
-                        <input asp-for="Title" class="form-control" placeholder="Örn: Yeni Bilgisayar, Acil Durum Fonu, Seyahat" required />
-                        <span asp-validation-for="Title" class="text-danger small"></span>
-                    </div>
-
-                    <!-- Hedef ve Biriken -->
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label asp-for="TargetAmount" class="form-label text-dark fw-semibold">Hedeflenen Tutar</label>
-                            <div class="input-group">
-                                <input asp-for="TargetAmount" type="number" step="0.01" class="form-control" placeholder="0.00" required />
-                                <span class="input-group-text bg-light border-start-0">₺</span>
-                            </div>
-                            <span asp-validation-for="TargetAmount" class="text-danger small"></span>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label asp-for="CurrentAmount" class="form-label text-dark fw-semibold">Biriken Tutar</label>
-                            <div class="input-group">
-                                <input asp-for="CurrentAmount" type="number" step="0.01" class="form-control" placeholder="0.00" required />
-                                <span class="input-group-text bg-light border-start-0">₺</span>
-                            </div>
-                            <span asp-validation-for="CurrentAmount" class="text-danger small"></span>
-                        </div>
-                    </div>
-
-                    <!-- Vade Tarihi -->
-                    <div class="mb-4">
-                        <label asp-for="TargetDate" class="form-label text-dark fw-semibold">Hedef Vade Tarihi</label>
-                        <input asp-for="TargetDate" class="form-control" type="date" value="@Model.TargetDate.ToString("yyyy-MM-dd")" required />
-                        <span asp-validation-for="TargetDate" class="text-danger small"></span>
-                    </div>
-
-                    <!-- Butonlar -->
-                    <div class="d-flex gap-2 justify-content-end border-top pt-3">
-                        <a asp-action="Index" class="btn btn-outline-primary px-3">İptal</a>
-                        <button type="submit" class="btn btn-primary px-4 fw-semibold">
-                            <i class="fa-solid fa-floppy-disk"></i> Değişiklikleri Kaydet
-                        </button>
-                    </div>
-                </form>
+            <div class="sg-bar-track">
+                <div class="sg-bar-fill"></div>
             </div>
+        </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="sg-form-card">
+        <div class="sg-form-tabs">
+            <div class="sg-tab active">
+                <i class="fa-solid fa-pen"></i> Hedef Bilgileri
+            </div>
+        </div>
+
+        <div class="sg-form-body">
+            <form asp-action="Edit" method="post">
+                <div asp-validation-summary="ModelOnly" class="v-err mb-3" role="alert"></div>
+                <input type="hidden" asp-for="Id" />
+
+                <!-- Kasa Adı -->
+                <div class="g-field">
+                    <label class="g-label" asp-for="Title">
+                        <i class="fa-solid fa-wallet"></i> Birikim Kasa Adı
+                    </label>
+                    <div class="g-wrap">
+                        <i class="fa-solid fa-pen g-ico"></i>
+                        <input asp-for="Title" class="g-input"
+                               placeholder="Örn: Yeni Bilgisayar, Tatil Fonu..." required />
+                    </div>
+                    <span asp-validation-for="Title" class="v-err"></span>
+                </div>
+
+                <!-- Hedef Tutar + Biriken -->
+                <div class="g-row">
+                    <div class="g-field">
+                        <label class="g-label" asp-for="TargetAmount">
+                            <i class="fa-solid fa-flag-checkered"></i> Hedef Tutar
+                        </label>
+                        <div class="g-wrap">
+                            <i class="fa-solid fa-bullseye g-ico"></i>
+                            <input asp-for="TargetAmount" type="number" step="0.01"
+                                   class="g-input" placeholder="0.00" required
+                                   style="padding-right:32px;" />
+                            <span class="g-sfx">₺</span>
+                        </div>
+                        <span asp-validation-for="TargetAmount" class="v-err"></span>
+                    </div>
+
+                    <div class="g-field">
+                        <label class="g-label" asp-for="CurrentAmount">
+                            <i class="fa-solid fa-piggy-bank"></i> Biriken Tutar
+                        </label>
+                        <div class="g-wrap">
+                            <i class="fa-solid fa-coins g-ico"></i>
+                            <input asp-for="CurrentAmount" type="number" step="0.01"
+                                   class="g-input" placeholder="0.00" required
+                                   style="padding-right:32px;" />
+                            <span class="g-sfx">₺</span>
+                        </div>
+                        <span asp-validation-for="CurrentAmount" class="v-err"></span>
+                    </div>
+                </div>
+
+                <!-- Vade Tarihi -->
+                <div class="g-field">
+                    <label class="g-label" asp-for="TargetDate">
+                        <i class="fa-regular fa-calendar-check"></i> Hedef Vade Tarihi
+                    </label>
+                    <div class="g-wrap">
+                        <i class="fa-regular fa-calendar g-ico"></i>
+                        <input asp-for="TargetDate" type="date" class="g-input"
+                               value="@Model.TargetDate.ToString("yyyy-MM-dd")" required />
+                    </div>
+                    <span asp-validation-for="TargetDate" class="v-err"></span>
+                </div>
+
+                <div class="g-divider"></div>
+
+                <div class="g-actions">
+                    <a asp-action="Index" class="btn-sg-cancel">
+                        <i class="fa-solid fa-xmark"></i> İptal
+                    </a>
+                    <button type="submit" class="btn-sg-save">
+                        <i class="fa-solid fa-floppy-disk"></i> Değişiklikleri Kaydet
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
