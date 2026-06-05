@@ -24,8 +24,7 @@ namespace PennyWise.Models
         [Required]
         public DateTime Date { get; set; }
         
-        [Required]
         [StringLength(250)]
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
     }
 }

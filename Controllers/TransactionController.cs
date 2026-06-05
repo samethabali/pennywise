@@ -94,7 +94,7 @@ namespace PennyWise.Controllers
                     Amount = model.Amount,
                     // Npgsql 8.x: timestamptz kolonları için UTC zorunlu
                     Date = DateTime.SpecifyKind(model.Date, DateTimeKind.Utc),
-                    Description = model.Description
+                    Description = model.Description ?? string.Empty
                 };
 
                 _context.Transactions.Add(transaction);
@@ -189,7 +189,7 @@ namespace PennyWise.Controllers
                 transaction.CategoryId = model.CategoryId;
                 transaction.Amount = model.Amount;
                 transaction.Date = DateTime.SpecifyKind(model.Date, DateTimeKind.Utc);
-                transaction.Description = model.Description;
+                transaction.Description = model.Description ?? string.Empty;
 
                 _context.Update(transaction);
                 await _context.SaveChangesAsync();

@@ -141,19 +141,42 @@
             const links = document.querySelectorAll(".sidebar-link");
             let matched = false;
             
+            // 1. Önce tam eşleşme ara
             links.forEach(link => {
                 const href = link.getAttribute("href");
                 if (href) {
                     const cleanHref = href.toLowerCase();
-                    if (currentPath === cleanHref || (cleanHref !== "/" && currentPath.startsWith(cleanHref))) {
+                    if (currentPath === cleanHref || currentPath === cleanHref + '/') {
                         link.classList.add("active");
                         matched = true;
                     }
                 }
             });
             
-            // Default active for dashboard if none matches
-            if (!matched && currentPath === "/") {
+            // 2. Tam eşleşme yoksa (örn: /Transaction/Edit/5), en iyi alt dizin eşleşmesini bul
+            if (!matched) {
+                let bestMatch = null;
+                let longestLength = 0;
+                
+                links.forEach(link => {
+                    const href = link.getAttribute("href");
+                    if (href && href !== "/") {
+                        const cleanHref = href.toLowerCase();
+                        if (currentPath.startsWith(cleanHref) && cleanHref.length > longestLength) {
+                            longestLength = cleanHref.length;
+                            bestMatch = link;
+                        }
+                    }
+                });
+                
+                if (bestMatch) {
+                    bestMatch.classList.add("active");
+                    matched = true;
+                }
+            }
+            
+            // Default active for dashboard if none matches and we are at root
+            if (!matched && (currentPath === "/" || currentPath === "")) {
                 const dashLink = document.querySelector('a[href*="/Dashboard"]');
                 if (dashLink) dashLink.classList.add("active");
             }

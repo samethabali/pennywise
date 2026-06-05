@@ -17,7 +17,6 @@ namespace PennyWise.ViewModels
         [Required(ErrorMessage = "Tarih seçimi zorunludur.")]
         public DateTime Date { get; set; }
         
-        [Required(ErrorMessage = "Açıklama alanı boş bırakılamaz.")]
         [StringLength(250)]
         public string? Description { get; set; }
     }
